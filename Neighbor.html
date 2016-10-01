@@ -1,0 +1,130 @@
+﻿<html lang="zh-TW"><head><meta charset="UTF-8" /><link rel="stylesheet" href="style.css" />
+<title>演算法筆記 - Neighbor</title></head><body>
+<div class="a"><div class="h">
+<p class="b">Metric</p>
+</div><div class="c">
+<p class="t">距離（Distance）</p>
+<p>現實問題，考慮兩個東西有多相似；化為數學問題，就是考慮兩個東西的距離有多接近。</p>
+<pre>
+兩個數值的距離：用減法、絕對值計算距離。
+兩個向量的距離：用數學公式計算距離。
+兩串數列的距離：用「<a href="SequenceAlignment.html">Dynamic Time Warping</a>」計算距離。
+兩串字串的距離：字串類似數列，同上。
+兩串訊號的距離：以「<a href="Regression.html">Linear Predictive Coding</a>」重新表示訊號，
+　　　　　　　　或者以「<a href="Wave.html">Fourier Transform</a>」重新表示訊號，
+　　　　　　　　再用數學公式計算距離。 
+兩個集合的距離：以「<a href="https://en.wikipedia.org/wiki/Sørensen–Dice_coefficient">Sørensen–Dice Index</a>」計算距離。
+兩棵樹的距離：用「<a href="GraphArithmetic.html">Tree Distance</a>」計算距離。
+兩張圖的距離：用「<a href="GraphArithmetic.html">Graph Kernel</a>」計算距離。
+</pre>
+<p class="t">距離函數（Metric）</p>
+<p>距離這個詞在數學中是有嚴謹定義的：</p>
+<pre>
+一、兩個一樣的東西，距離等於零，d(A,A) = 0。
+二、A到B的距離等於B到A的距離，d(A,B) = d(B,A)。
+三、三角不等式，ABC三個東西，兩邊和大於等於第三邊，
+　　d(A,B) + d(B,C) ≥ d(A,C)
+　　d(A,C) + d(B,C) ≥ d(A,B)
+　　d(A,B) + d(A,C) ≥ d(B,C)
+</pre>
+<p>常見的距離函數：</p>
+<pre>
+Euclidean Distance（L₂）：直線距離。
+Taxicab Distance（L₁）：垂直、水平移動的距離。
+Hamming Distance（L₀）：相對應維度，數值相異的維度個數。
+</pre>
+<img src="Metric1.png">
+<p class="e">UVa 10508 11085 ICPC 5132</p>
+<p class="t">長度函數、絕對值函數（Norm）</p>
+<p>長度這個詞在數學中是有嚴謹定義的：</p>
+<pre>
+一、有些東西長度為零，p(A) = 0。
+二、一個東西均勻放大縮小，其長度也隨著放大縮小，p(k*A) = |k|*p(A)。
+三、三角不等式，p(A + B) ≤ p(A) + p(B)。
+</pre>
+<p>下面其實用不到長度函數，只是順便介紹。</p>
+
+</div></div><div class="a"><div class="h">
+<p class="b">Nearest Neightbor（Under Construction!）</p>
+</div><div class="c">
+<p class="t">Nearest Neightbor</p>
+<p><a href="https://algnotes.wordpress.com/2015/03/12/">https://algnotes.wordpress.com/2015/03/12/</a></p>
+<p class="e">ICPC 3270</p>
+<p class="t">Relative Nearest Neightbor</p>
+<p>http://en.wikipedia.org/wiki/Relative_neighborhood_graph</p>
+<p class="t">Gabriel Graph</p>
+<p>http://en.wikipedia.org/wiki/Gabriel_graph</p>
+<p class="t">α-Shape</p>
+<p>http://en.wikipedia.org/wiki/Alpha_shape</p>
+<p class="t">β-Skeleton</p>
+<p>http://en.wikipedia.org/wiki/Beta_skeleton</p>
+<p class="t">Θ-Graph</p>
+<pre>
+http://www.cs.tufts.edu/comp/260/lectures.html
+http://en.wikipedia.org/wiki/Theta_graph
+http://en.wikipedia.org/wiki/Yao_graph
+</pre>
+
+</div></div><div class="a"><div class="h">
+<p class="b">Farthest Neightbor（Under Construction!）</p>
+</div><div class="c">
+<p class="t">Farthest Neightbor</p>
+<p>求每個點的最遠點。先前介紹的「最遠點對」屬於其中一份子。</p>
+<p>Farthest Voronoi Diagram。O(NlogN)。</p>
+<p class="t">Farthest Neightbor</p>
+<p>查詢的點，不是一開始的點。KD-Tree。</p>
+<p class="t">Farthest Neightbor on Convex Hull</p>
+<p>無法使用旋轉卡尺。例如一個橢圓。</p>
+<p>Randomized Incremental Method。O(NlogN)。</p>
+<p>Convex Hull + Monge Matrix。O(N)。</p>
+<p>動態問題可以參考這篇，更新、查詢的平均時間複雜度是O((logN)^2)。</p>
+<pre>
+http://www.ics.uci.edu/~eppstein/pubs/Epp-CGTA-96.pdf
+</pre>
+<p class="e">UVa 12311</p>
+
+</div></div><div class="a"><div class="h">
+<p class="b">Euclidean Geometry（Under Construction!）</p>
+</div><div class="c">
+<p class="t">Hamilton Circuit</p>
+<p>Bitonic Euclidean TSP</p>
+<p class="e">ICPC 4791</p>
+
+</div></div><div class="a"><div class="h">
+<p class="b">Taxicab Geometry（Under Construction!）</p>
+</div><div class="c">
+<p class="t">Taxicab Geometry</p>
+<p>L₁ Metric</p>
+<p class="t">Closest Pair</p>
+<p class="e">ICPC 5848</p>
+<p class="t">Farthest Pair</p>
+<p>歐氏距離，窮舉法O(N^2)，凸包與旋轉卡尺O(NlogN)。</p>
+<p>距離公式|x1 - x2| + |y1 - y2| + |z1 - z2|。去掉絕對值，共8種情況。以(x1 - x2) - (y1 - y2) + (z1 - z2)為例，重新整理得到(x1 - y1 + z1) - (x2 - y2 + z2)。若前項盡量大、後項盡量小，則距離越大。</p>
+<p>窮舉8種正負號配置情況（因為對稱，其實只需4種）。對於一種情況，窮舉每個點，紀錄最大值、最小值。最大值減最小值，即為所求。時間複雜度O(N)。</p>
+<textarea>
+struct Point {int x, y, z;} p[10];
+
+int f(int a, int b, int c)
+{
+	int max = -1e9, min = 1e9;
+	for (int i=0; i<10; i++)
+	{
+		int v = a * p[i].x + b * p[i].y + c * p[i].z;
+		max = std::max(max, v);
+		min = std::min(min, v);
+	}
+	return max - min;
+}
+
+float farthest_pair()
+{
+	return max(max(f(1,1,1), f(1,1,-1)), max(f(1,-1,1), f(-1,1,1)));
+}
+</textarea>
+<p class="e">UVa 11012 Sphere 2320</p>
+<p class="t">Mininum Spanning Tree</p>
+<p>歐氏距離，Kruskal's Algorithm O(ElogV) = O(NNlogN)，其中E = V(V-1)/2 = O(V^2)。Prim's Algorithm O(N^2)。Voronoi Diagram O(NlogN)。</p>
+<p><a href="http://blog.csdn.net/acm_cxlove/article/details/8890003">http://blog.csdn.net/acm_cxlove/article/details/8890003</a></p>
+<p>邊數降至4N，可套用Kruskal's Algorithm。O(NlogN)。</p>
+<p class="e">ICPC 3662</p>
+</div></div><script src="h.js"></script></body></html>

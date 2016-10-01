@@ -1,0 +1,670 @@
+﻿<html lang="zh-TW"><head><meta charset="UTF-8" /><link rel="stylesheet" href="style.css" />
+<title>演算法筆記 - Optimization</title></head><body>
+<div class="a"><div class="h">
+<p class="b">Optimization</p>
+<p class="w">而世之奇偉、瑰怪、非常之觀，常在於險遠，</p>
+<p class="w">而人之所罕至焉，故非有志者不能至也。《王安石．游褒禪山記》</p>
+</div><div class="c">
+<p class="t">楔子</p>
+<p>電腦是計算機，只會計算數字。要讓電腦代替人腦處理真實世界的問題，首先要將人腦的抽象想法，一一對應到電腦的實際數值。</p>
+<img src="Optimization1.png">
+<p>人腦考慮的「效果最好」與「效果最差」，放到了電腦就被設定成「數字最大」與「數字最小」。人腦考慮的「問題」與「各種可能性」，放到了電腦就被設定成「函數」與「各種輸出入」。</p>
+<p>於是乎，人腦考慮的「最好作法」與「最差作法」，放到了電腦就是「最佳化」！</p>
+<p class="t">Optimization</p>
+<p>求根找到零，最佳化找到極值。找到確切的輸入數值與輸出數值，輸出數值是最大值（最小值），稱作「最佳化」。</p>
+<img src="Optimization2.png">
+<p>以函數圖形表達函數的極值：最大值就是最高的地方，最小值就是最低的地方。有時候最大值、最小值會在無限遠的地方。</p>
+<img src="Optimization3.png">
+<p>中學數學談過一點點多項式函數的最佳化，比如一元二次多項式函數的最佳化（求拋物線的頂點）。大學微積分課程也談過多項式函數最佳化，比如一階導數等於零。</p>
+<p>以下則是談一般的函數的最佳化。</p>
+
+</div></div><div class="a"><div class="h">
+<p class="b">特殊函數類型</p>
+</div><div class="c">
+<p class="t">容易找到極值的函數類型</p>
+<img src="Optimization4.png">
+<p>Unimodal Function：單峰函數。先嚴格遞增、再嚴格遞減的函數。只有遞增或者只有遞減，也算是單峰函數。</p>
+<p>Convex Function：凸函數。隨便劃一道割線，函數曲線總是凹下去的函數。凸函數是單峰函數。凸函數的斜率是遞增函數。</p>
+<p>Concave Function：凹函數。凸函數上下顛倒。注意到凸函數看起來是凹的，凹函數看起來是凸的，不要問我為什麼。</p>
+<p>Lipschitz Function：不太斜的函數。任意割線的斜率的絕對值，小於等於一個定值。</p>
+<p>Polynomial Function：多項式函數，無限可微的函數。「梯度等於零」的地方是極值或鞍點，可以手工推導公式解。</p>
+<p class="t">Ternary Search</p>
+<p>求根可用二分搜尋，求極值可用三分搜尋。函數必須是單峰函數、凹函數、凸函數。</p>
+<img src="Optimization5.png">
+<textarea>
+double ternary(double L, double R, double (*f)(double))
+{
+	// log3(double max / double min) ≈ 1300
+	for (int i=0; i<1300; i++)
+	{
+		double x1 = L + (R-L)/3;
+		double x2 = R - (R-L)/3;
+		if (f(x1) < f(x2))	R = x2;
+		else				L = x1;
+	}
+	return L;
+}
+</textarea>
+<p class="e">UVa 1476 10385 11243 11562 11613 ICPC 5009</p>
+
+</div></div><div class="a"><div class="h">
+<p class="b">地面勘查類型</p>
+</div><div class="c">
+<p class="t">概論</p>
+<!--ParametricPlot3D[{v Cos[u], v Sin[u], 5 Cos[Pi/10] BesselJ[0, v]}, {u, 0, 4 (Pi/2)}, {v, 0, 15}, Boxed -> False, Axes -> False, Mesh -> None]-->
+<img src="OptimizationEarth1.png">
+<p>選一個起點，一步一腳印，走向極值。</p>
+<p>適用於函數值如同地表般連續起伏的時候，例如多項式函數。</p>
+<p class="t">Hill Climbing（登山法）</p>
+<img src="OptimizationEarth2.png">
+<p>沿著函數圖形的表面前進。隨便往某個方向跨出一步，確定是往上，就直直走；確定是往下，就不走。最後成功登頂。</p>
+<p>步伐太大，會越過山峰，走往低處。只要步伐持續變小，仍可攻頂。但是步伐變小太快，便會在山腰掙扎，無法登頂。取捨兩難。</p>
+<p>選擇各種起點，登上各個山峰。由於無法預測最高峰的位置，只好隨機嘗試多種起點、實施多次登山法，依賴運氣尋找最高峰。嘗試越多起點，越能找到最高峰，越能避免落入區域極值。</p>
+<p>缺陷：可能停在山腰。可能只找到區域極值。</p>
+<textarea>
+Point hill_climbing(float (*f)(float, float))
+{
+	float x = random(-∞, +∞);
+	float y = random(-∞, +∞);
+	float z = f(x, y);
+
+	float step = 1.0;	// 步伐大小
+	float rate = 0.9;	// 步伐大小漸漸變小，才能精準攻頂。
+						// 若步伐變小太快，可能走不到山頂。
+	while (step > 1e-5)
+	{
+		// 隨便往某個方向跨出一步
+		float θ  = random(0, 2.0 * π);
+		float x2 = x + cos(θ) * step;
+		float y2 = y + sin(θ) * step;
+		// 確定是往上，就直直走；確定是往下，就不走。
+		float z2 = f(x2, y2);
+		if (z2 > z) x = x2, y = y2, z = z2;
+		else step *= rate;
+	}
+	return (Point){x, y, z};
+}
+</textarea>
+<p class="t">Simulated Annealing（模擬退火法）</p>
+<img src="OptimizationEarth3.png">
+<p>登山法加強版。允許往下走，以便翻山越嶺。</p>
+<p>隨便往某個方向跨出一步，確定是往上，就走；確定是往下，以機率exp(Δf⋅t)決定走或不走，其中Δf是上升高度（往下走時是負值），t是時刻（大於等於1）。大致上來說，往下越陡就越不想往下，年紀越大就越不想往下。</p>
+<p>註：原論文只找山谷、未找山峰。原論文沒有時刻t，而是溫度T；溫度不斷下降，因此機率公式是exp(Δf/T) 。</p>
+<p>缺陷：可能停在山腰。可能只找到區域極值。</p>
+<textarea>
+Point simulated_annealing(float (*f)(float, float))
+{
+	float x = random(-∞, +∞);
+	float y = random(-∞, +∞);
+	float z = f(x, y);
+
+	float step = 1.0;	// 步伐大小
+	float rate = 0.9;	// 步伐大小漸漸變小，才能精準攻頂。
+	float threshold = 0.01;	// 往下走的機率界限
+
+	for (int t = 0; step > 1e-5; t++)
+	{
+		float θ  = random(0, 2.0 * π);
+		float x2 = x + cos(θ) * step;
+		float y2 = y + sin(θ) * step;
+		float z2 = f(nx, ny);
+		if (z2 > z || exp((z2-z)*t) > threshold)
+			x = x2, y = y2, z = z2;
+		else
+			step *= rate;
+	}
+	return (Point){x, y, z};
+}
+</textarea>
+<p class="e">UVa 10228 ICPC 5102</p>
+<p class="t">Tabu Search（禁忌搜尋）</p>
+<p>把最近經過的地方用記憶體記下來，不重蹈覆轍，避免鬼打牆。</p>
+<p>實作時，記住前k步，以queue紀錄。</p>
+<p class="t">Gradient Descent（梯度下降法）</p>
+<img src="OptimizationEarth4.png">
+<p>登山法加強版。直接朝著梯度方向走，不必試誤。</p>
+<p>X座標、Y座標、……分開處理，互不干涉。當前位置，求得相鄰高度差，座標大的高度減去座標小的高度，正負值可判別相對高低。當前位置，加上相鄰高度差，就是往上走。若相鄰高度差越多，則前後座標差越多。</p>
+<p>另外，梯度的功效，有如相鄰高度差的功效。梯度就是相鄰高度差再除以一個dx。因為數學家喜歡梯度，所以採用了梯度。</p>
+<p>梯度就是傾斜程度。梯度方向是最陡的方向，是等高線的垂直方向。沿梯度方向走會上升、得極大值，沿梯度反方向走會下降、得極小值。步伐太大，會走之字路線，無傷大雅。</p>
+<p>函數必須事先進行一次微分，代入當前位置就得到梯度，故梯度下降法僅適合一次可微函數。話雖如此，遇到不可微分的函數，還是可以硬來：計算相鄰高度差。</p>
+<p>優點：方向明確，不必隨機亂走試誤，攻頂速度快。缺陷：可能停在山腰。可能只找到區域極值、鞍點。</p>
+<p>註：原論文只找山谷、未找山峰，因而取名為「下降」。</p>
+<textarea>
+Point gradient_descent(float (*f)(float, float),
+                       float (*∇x)(float, float),
+                       float (*∇y)(float, float))
+{
+	float x = random(-∞, +∞);
+	float y = random(-∞, +∞);
+
+	float step = 1.0;	// 步伐大小
+	float rate = 0.9;	// 步伐大小漸漸變小，才能精準攻頂。
+
+	while (step > 1e-5)
+	{
+		float x2 += ∇x(x, y) * step;
+		float y2 += ∇y(x, y) * step;
+		x = x2; y = y2;
+		step *= rate;
+	}
+	return (Point){x, y, f(x,y)};
+}
+</textarea>
+<p class="t">Nonlinear Conjugate Gradient Method（非線性共軛梯度法）</p>
+<p>梯度下降法加強版。前進方向是「本次的梯度」與「上次的前進方向」的加權平均。權重有許多種選擇，每個人自有一套理論：</p>
+<p><a href="http://people.cs.vt.edu/~asandu/Public/Qual2011/Optim/Hager_2006_CG-survey.pdf">http://people.cs.vt.edu/~asandu/Public/Qual2011/Optim/Hager_2006_CG-survey.pdf</a></p>
+<p><a href="http://sebastianruder.com/optimizing-gradient-descent/">http://sebastianruder.com/optimizing-gradient-descent/</a></p>
+<p>最近走紅的演算法有AdaDelta、ADAM，層出不窮。</p>
+<p>註：演算法名稱雖源自「<a href="EquationSolving.html">Conjugate Gradient Method</a>」，內容卻毫無關聯。古代數學家考慮欠周的結果。</p>
+<p class="t">Newton's Method（牛頓法）</p>
+<p>牛頓法原先是求根的方法，找到函數等於零的地方。由於極值（連同鞍點）總是出現在「梯度等於零」的地方，只要事先求得梯度，就可以套用牛頓法求得極值（連同鞍點）了。</p>
+<p>求得梯度需要一次微分，牛頓法的過程需要再一次微分，前後合計兩次，故牛頓法僅適合二次可微函數。話雖如此，遇到不可微分的函數，還是可以硬來。</p>
+<p>輸入變數只有一個的情況下，牛頓法非常實用。牛頓法可以視作梯度下降法的加強版，步伐大小是二次微分的倒數（曲率半徑越大、路線越直、步伐越大），攻頂速度更快。</p>
+<p>輸入變數有許多個的情況下，牛頓法不太實用。當函數有N個輸入變數，其梯度有N個方向，得到N個函數。N個函數同時實施牛頓法，每一步需時O(N^2)，計算時間更久。</p>
+<p class="t">Quasi-Newton Method（擬牛頓法）（類牛頓法）</p>
+<p>牛頓法加強版。二次微分的部分，改成其他類似的東西。有許多種選擇，每個人自有一套理論：</p>
+<p><a href="https://en.wikipedia.org/wiki/Quasi-Newton_method">https://en.wikipedia.org/wiki/Quasi-Newton_method</a></p>
+<p>最近走紅的演算法有BHHH、BFGS，層出不窮。</p>
+<p>註：古時候尚未發明程式語言。古人遇到迴圈，習慣寫成向量運算、矩陣運算、級數。簡單明瞭的數學概念，經過古人的轉換，往往讓現代人摸不著頭緒。請讀者好自為之。</p>
+
+</div></div><div class="a"><div class="h">
+<p class="b">空中勘查類型</p>
+</div><div class="c">
+<p class="t">概論</p>
+<p>地面勘查經常癱在山腰、卡在山丘，只好改為飛行模式。像偵察機一樣飛來飛去，不被山峰峽谷阻擋。</p>
+<p>這類的演算法，完全憑感覺，一個比一個唬爛，連一個數學性質都不必證明。但是我們也沒有更好的方法了。面對亂七八糟的函數，只好用亂七八糟的算法。</p>
+<p class="t">Particle Swarm Optimization（粒子演算法）</p>
+<iframe src="http://www.youtube.com/embed/_bzRHqmpwvo"></iframe>
+<pre>
+一、散佈N個粒子。一個粒子對應一個可行解。
+　　position[1...N];	// x
+　　solution[1...N];	// f(x)
+二、以個人過去最佳解、團體過去最佳解，決定粒子的速度。
+　　然後移動粒子，讓粒子飛往最佳解。
+　　velocity[i] =
+　　　2.0 * rand(0 ~ 1) * (best_position[i] - position[i]) +
+　　　2.0 * rand(0 ~ 1) * (best_position[best_particle_index] - position[i]);
+三、更新個人最佳解、團體最佳解。
+　　best_solution[i] = max(best_solution[i], solution[i])
+  　　and record best_position[i];
+　　best_particle_solution = max_arg(best_solution[1...N])
+　　  and record best_particle_index;
+四、重複二三，直到解夠好。
+</pre>
+<p>附帶一提，這與粒子的真實行為完全無關。</p>
+<p class="t">Bee Colony Optimization（蜜蜂演算法）</p>
+<iframe src="http://www.youtube.com/embed/zxcb6ZBj5PE"></iframe>
+<pre>
+一、散佈N個食物。一個食物對應一個可行解。
+　　position[1...N];	// x
+　　solution[1...N];	// f(x)
+二、N隻蜜蜂分頭前往N個食物並返回，但是腦中記得的位置會有偏差。
+　　position[i] +=
+　　　rand(-1 ~ +1) * position[rand(1 ~ N expect i)];
+三、每隻蜜蜂皆從N個食物中挑一個去，機率由解的好壞決定。
+　　probability[i] = solution[i] / ( solution[1] + ... + solution[N] )
+　　返回時腦中記得的位置一樣會有偏差。公式同二。
+四、如果某個食物連續K個回合沒去，食物自動消滅。
+　　隨機散佈食物，補足食物直到N個。
+五、重複二三四，直到解夠好。
+</pre>
+<p>附帶一提，這與蜜蜂的真實行為完全無關。</p>
+<p class="t">Fruit Fly Optimization（果蠅演算法）</p>
+<p>《果蠅最佳化演算法：最新演化式計算技術》</p>
+
+</div></div><div class="a"><div class="h">
+<p class="b">排列組合類型</p>
+</div><div class="c">
+<p class="t">概論</p>
+<p>隨意拼湊函數輸入，試著讓函數輸出是極值。</p>
+<p>這類的演算法，不僅憑感覺，而且還是隨機亂猜的，唬爛無上限。一個演算法，就能開一學期的課，令人不得不嘖嘖稱奇。</p>
+<p class="t">Genetic Algorithm（基因演算法）</p>
+<iframe src="http://www.youtube.com/embed/ejxfTy4lI6I"></iframe>
+<p>靈感來自於染色體減數分裂的過程，優良的基因不斷遺傳下去，逐代演化出更適應環境的基因。基因演算法把答案比擬成染色體，把好的答案不斷分裂再結合，成為更好的答案。</p>
+<p>附帶一提，這與基因的真實行為完全無關。</p>
+<pre>
+1.
+[初始化]
+一開始先隨便弄出幾個x。本例是四個。
+
+	1010101010
+	1011001011
+	1110101011
+	0010101000
+
+2.
+[fitness function]
+根據問題特性，定義好壞程度。
+
+	f(1010101010) = 678
+
+3.
+[selection]
+隨便找個位置切一刀，每個x都被分成兩段。
+
+	1010101  010
+	1011001  011
+	1110101  011
+	0010101  000
+
+4.
+[crossover]
+隨便找兩組你覺得夠優良的x，交叉相接變成新答案。
+重複一直做，直到x數目跟原先一樣多。本例是四個。
+
+	1010101 \/ 010  ->  1010101 -- 011
+	1011001 /\ 011      1011001 -- 010 
+
+
+	1010101011
+	1011001010
+	1110101010
+	1010101000
+
+5.
+[mutation]
+每個x都隨便找一個地方把數字改掉，也可以不改。
+
+	1010111011
+	1011001000
+	1110101010
+	1010101001
+
+6.
+重複3. 4. 5.，直到裡面有一個x是你滿意的，令f(x)最大的那個x。
+</pre>
+<pre>
+1. 隨機產生N個x。
+2. 計算fitness function。
+3. 重複以下步驟，直到有一個x讓人滿意。
+　甲、selection。
+　乙、crossover。
+　丙、mutation。
+　丁、計算fitness function。
+</pre>
+<p>演算法的過程，大致就是如此。細部的實作方式、參數的調校方式，隨人話虎爛。</p>
+<p>一開始的x的足夠豐富，多演化幾次，就可以得到不錯的結果。一開始的x足夠豐富，可以避免進入區域極值。mutation用於增加x的豐富性，以跳脫區域極值。</p>
+<p class="t">範例：0/1 Knapsack Problem</p>
+<pre>
+N個物品。選出其中幾個。
+
+[初始化]
+答案設計成N個二進位數字，
+0代表對應的物品不在背包內，
+1代表對應的物品在背包內。
+
+[fitness function]
+是背包內物品總價值，數值越大越好。
+</pre>
+<p>當「特定組合」具有深邃的影響力，造成最佳解、次佳解們都包含著同一（幾）套「特定組合」，此時就適合使用基因演算法。以0/1背包問題為例，一套好的物品組合方式可以有效節省背包空間，只要依賴幾套好的物品組合方式，就留有足夠的背包空間，能夠隨心所欲的放入其他物品；所有接近最佳解的答案，答案的其中一小段，都會是那幾套固定的物品組合方式──這種情況就非常適合使用基因演算法。</p>
+<p class="e">UVa 10715</p>
+<p class="t">範例：Minimum Spanning Tree</p>
+<pre>
+E條邊。選出V-1條。
+
+[初始化]
+答案設計成E個二進位數字，
+0代表對應的邊不是MST。
+1代表對應的邊是MST。
+
+[fitness function]
+是MST的權重，數值越大越好。
+</pre>
+<p>用人眼觀察，很直覺的就能在小區域找出最佳的子樹，那便是一套「特定組合」。</p>
+<p class="t">範例：Travelling Salesman Problem</p>
+<pre>
+N個城市，C(N,2)條路。選出N條。
+
+[初始化]
+答案被迫設計成0到N-1的數字，代表一條路徑。
+
+[fitness function]
+是路徑的權重，數值越小越好。
+
+[crossover]
+哈哈哈，很難搞。
+
+[mutation]
+可以有好幾種方式：
+1. 隨便交換兩個數字。
+2. 隨便找一段數字，顛倒前後順序。
+3. 隨便拿出一個數字，隨便插入到其他地方。
+</pre>
+<p>旅行推銷員問題也具有「特定組合」的性質，只不過它的答案並不適合分裂再結合，最好不要堅持使用基因演算法，自尋煩惱。</p>
+<p class="t">Ant Colony Optimization（螞蟻演算法）</p>
+<iframe src="http://www.youtube.com/embed/hXUCCRiNBOc"></iframe>
+<p>靈感來自於螞蟻覓食的過程，螞蟻發現食物後會沿途留下強烈的費洛蒙，驅使其他螞蟻沿著路線前進，不斷留下更多費洛蒙，吸引更多螞蟻；也有螞蟻會另闢新路，而找到更簡潔的路線。螞蟻演算法把答案比擬成螞蟻覓食的路徑，把好的答案不斷做局部調整，成為更好的答案。</p>
+<p>螞蟻演算法有各式各樣的版本，這裡介紹其中一個經典版本Ant Colony System，主要是計算一條最短的覓食路徑。</p>
+<p>附帶一提，這與螞蟻的真實行為完全無關。</p>
+<pre>
+1.
+[初始化]
+一開始先建立一個地圖，地圖上有P個地點。
+有一些地點是食物，有一個地點是蟻窩。
+
+地點與地點間皆有道路，
+所有道路的費洛蒙都預設為1.0。
+
+2.
+[state transition rule]
+一隻螞蟻從蟻窩出發。
+每次踏上一個地點，螞蟻有兩種選擇，
+　　◎探索：隨便走一條路。機率為q。
+　　◎追蹤：走費洛蒙最強的道路。機率為1-q。
+
+q是螞蟻選擇探索的機率，自行設定在0到1之間。
+
+為了不讓螞蟻打轉繞圈，所以會讓螞蟻避開去過的地點。
+在探索和追蹤前，要先過濾掉去過的地點。
+
+所有食物都找到後就直接回蟻窩，
+沒找到所有食物就不准回蟻窩。
+總之就是要刻意弄出一條「嘗遍天下美食」的路線。
+
+3.
+[local updating rule]
+螞蟻回巢之後，
+剛剛走過的每一條道路，費洛蒙都會加強，
+道路的費洛蒙會變成下列兩者相加後的數值，
+　　◎自然蒸發，餘下：原本費洛蒙值，乘上1-ρ。
+　　◎螞蟻路過，添加：道路起點所連接的道路當中，最大的那個費洛蒙值，乘上p。
+
+ρ是費洛蒙蒸發的程度，自行設定在0到1之間。
+通常會把參數設的很好，讓相加之後，費洛蒙會比原本增加一些，而不是變更少。
+
+4.
+有N隻螞蟻，依序做2. 3.這件事。
+
+5.
+[global updating rule]
+N隻螞蟻回巢之後，
+地圖上所有道路的費洛蒙都會蒸發一定比例。
+　　◎自然蒸發，餘下：原本費洛蒙值，乘上1-α。
+
+而目前的最佳路線，在蒸發之後，竟會神奇地額外增加一些費洛蒙。
+　　◎最佳路線，添加：目前最佳解的數值，倒數後，再乘上α。
+
+α是費洛蒙蒸發的程度，自行設定在0到1之間。
+
+6.
+2. 3. 4. 5.，重複執行R次。
+途中不斷紀錄最好的路線。
+</pre>
+<pre>
+1. 初始化地圖與費洛蒙。
+2. 以下動作執行R次：
+　　1. N隻螞蟻依序找路線，不是同時找路線：
+　　　　1. state transition rule，一隻螞蟻找一條路線。 
+　　　　   此路線是由蟻窩出發，經過所有食物各一次，然後回到蟻窩。
+　　　　2. 記錄目前最佳路線。
+　　　　3. local updating rule，更新路線費洛蒙。
+　　2. global updating rule，更新所有道路費洛蒙。
+</pre>
+<p>演算法的過程，大致就是如此。細部的實作方式、參數的調校方式，隨人話虎爛。</p>
+<p>螞蟻數量足夠豐富，可以避免進入區域極值。隨機探索用於增加答案豐富性，跳脫區域極值。</p>
+<p class="t">範例：Travelling Salesman Problem</p>
+<pre>
+N個城市，C(N,2)條路。選出N條。
+
+[初始化]
+答案設計成0到N-1的數字，代表一條路徑。
+地圖上每個地點都有食物。
+地圖上可以任意挑一地點作為蟻窩。
+</pre>
+<p>當答案具有「特定排列」的性質，就適合採用螞蟻演算法。</p>
+
+</div></div><div class="a"><div class="h">
+<p class="b">Online Optimization</p>
+<p class="w">故兵無常勢，水無常形﹔能因敵變化而取勝者，謂之神。《孫子》</p></div><div class="c">
+<p class="t">概論</p>
+<p>針對時時變化的函數。函數有如波浪。</p>
+<p class="t">Mean Shift（平均值移動）</p>
+<pre>
+一、均勻散布粒子。
+二、以上次最佳解的座標為中心，
+　　取得鄰近範圍內所有粒子。（範圍自訂，通常是規定半徑長度。）
+三、範圍內所有粒子各自求函數值。
+四、範圍內所有粒子的座標，求加權平均（權重是函數值），得到新的最佳解的座標。
+</pre>
+<p>另一種觀點是取樣。樣本（粒子）的密度，當作是函數值的大小。可以想成是找到粒子密度最高的地方。【待補文字】</p>
+<p class="t">Particle Filter（粒子濾波器）</p>
+<pre>
+一、以上次最佳解的座標為中心，
+　　散布n個粒子，呈高斯分布。（範圍自訂，範圍即變異數）
+　　粒子不用飛來飛去了，直接散布。
+二、n個粒子各自求函數值。
+三、n個粒子的座標，求加權平均（權重是函數值），得到新的最佳解的座標。
+四、或者不採用加權平均。
+　　想像n個粒子各有磁場（高斯分布），強弱由函數值大小決定，
+　　形成joint distribution（高斯混和分布）。
+　　下一回合依此分布散布粒子。
+</pre>
+
+</div></div><div class="a"><div class="h">
+<p class="b">Multi-Objective Optimization</p>
+<p class="w">魚，我所欲也，熊掌，亦我所欲也；</p>
+<p class="w">二者不可得兼，舍魚而取熊掌者也。《孟子》</p>
+</div><div class="c">
+<p class="t">概論</p>
+<p>找到一個輸入，同時最佳化多個函數。</p>
+<p>通常不存在如此完美的輸入，所以只好折衷。</p>
+<p class="t">Scalarization</p>
+<p>多個函數，極值位置通常不相等。多個函數的加減乘除，極值位置毫無規律。我們難以制定任何策略。這種情況下，大家只好尋求心靈勵志書籍、追隨網路名嘴了。</p>
+<pre>
+{ minimize f(x)
+{ minimize g(x)
+</pre>
+<p>然而值得一提的是，兩個凸函數相加之後，仍是凸函數；而且新極值位置，夾在原極值位置之間，不會歪太多。得到折衷方案：最佳化兩個凸函數的和，找到極值位置。</p>
+<pre>
+{ minimize f(x)   f,g are convex
+{ minimize g(x)  ---------------->  minimize f(x) + g(x)
+</pre>
+<p>為了調整極值位置，可以添上權重。為了保持是凸函數，權重不能是負數。權重可以自由設定，沒有所謂最適當的權重。</p>
+<p>注意到，除了權重，函數本身的斜率變化也會影響極值位置。即使權重各0.5，極值位置也通常不在正中央。因此這個手法是任憑感覺、碰碰運氣。</p>
+<pre>
+minimize α f(x) + β g(x)   (α ≥ 0, β ≥ 0)
+</pre>
+<p>可以推廣成多個凸函數。max只要加上負號就變成min。</p>
+
+</div></div><div class="a"><div class="h">
+<p class="b">Constrained Optimization（Under Construction!）</p>
+<p class="w">天將降大任於斯人也，必先苦其心志，勞其筋骨，餓其體膚，空乏其身，</p>
+<p class="w">行拂亂其所為，所以動心忍性，曾益其所不能。《孟子》</p>
+</div><div class="c">
+<p class="t">概論</p>
+<p>施加限制條件，以求得更對味的答案。</p>
+<p>大量的限制條件，通常是好幾道等式、不等式。限制條件畫成函數圖形，看起來就是範圍限制、邊界限制。像包圍網一樣把範圍逐漸縮小。</p>
+<img src="ConstrainedOptimization1.png">
+<p class="t">Linear Programming（線性規劃）</p>
+<p>僅適合線性函數。</p>
+<img src="ConstrainedOptimization2.png">
+<p>最佳化函數是線性函數，邊界限制也是線性函數，例如直線、平面。因為是凸函數，所以可以設計極快的演算法！</p>
+<p>線性規劃的觀念，正是計算幾何「<a href="Half-planeIntersection.html">Half-plane Intersection</a>」。解：整個平面。最佳化函數：一個方向向量。邊界限制：半平面。最佳解：半平面交集的頂點。</p>
+<img src="ConstrainedOptimization3.png">
+<p>每道不等式補上變數，成為等式。</p>
+<p>解線性不等式，變成解線性等式。套用高斯消去法即可，求得位於第一象限的解。</p>
+<p>當原點不是可行解，可以添上一個足夠大的數字。</p>
+<p>【待補演算法】</p>
+<p>http://ocw.mit.edu/courses/aeronautics-and-astronautics/16-410-principles-of-autonomy-and-decision-making-fall-2010/lecture-notes/MIT16_410F10_lec17.pdf</p>
+<textarea>
+const float ∞ = 1e30;	// 無限大
+const int n = 10;		// 變數數量
+const int m = 5;		// 不等式數量
+
+// max cx   subject to ax <= b, x >= 0
+// assume x = 0 is feasible solution
+float a[m][n+m], b[m], c[n+m], x[n+m];
+
+void init()
+{
+	memset(a, 0, sizeof(a));
+	memset(b, 0, sizeof(b));
+	memset(c, 0, sizeof(c));
+	memset(x, 0, sizeof(x));
+
+	for (int j = 0; j < n; j++)
+		cin >> c[j];
+
+	for (int i = 0; i < m; i++)
+	{
+		for (int j = 0; j < n; j++)
+			cin >> a[i][j];
+		cin >> b[i];
+	}
+
+	// m道式子，擴充m個變數
+	for (int i = 0; i < m; i++)
+		a[i][n+i] = 1;
+}
+
+void pivot(int& row, int& col)
+{
+	// 從c當中找出需要消滅的開放區間變數
+	float max = -∞;
+	for (int j = 0; j < n + m; j++)
+		if (c[j] > 0)
+		{
+			// 找到b/a最小的row
+			// 實施消去之後，其他row的b仍是正數
+			// 將來得以繼續增加z、繼續消去c的開放區間變數。
+			float min = ∞;
+			int min_row = -1;
+			for (int i = 0; i < m; i++)
+				if (a[i][j] > 0)
+					if (b[i] / a[i][j] < min)
+					{
+						min = b[i] / a[i][j];
+						min_row = i;
+					}
+
+			// 找到讓z增加最多的column
+			if (max < min * c[j])
+			{
+				max = min * c[j];
+				col = j, row = min_row;
+			}
+		}
+}
+
+float eliminate(int row, int col)
+{
+	float e = a[row][col];
+	for (int j = 0; j < n + m; j++)
+		a[row][j] /= e;
+	b[row] /= e;
+
+	for (int i = 0; i < m; i++)
+	{
+		if (i == row) continue;
+		float t = a[i][col];
+		for (int j = 0; j < n + m; j++)
+			a[i][j] -= t * a[row][j];
+		b[i] -= t * b[row];
+	}
+
+	float t = c[col];
+	for (int j = 0; j < n + m; j++)
+		c[j] -= t * a[row][j];
+
+	return b[row] * t;
+}
+
+void simplex()
+{
+	init();
+
+	float z = 0;
+//	for (int i = 0; i < n + m; ++i)
+	while (true)
+	{
+		int row = -1, col = -1;
+		pivot(row, col);
+		if (col == -1) break;
+		z += eliminate(row, col);
+	} 
+	return z;
+}
+</textarea>
+<p class="e">UVa 10498 ICPC 7584</p>
+<p class="t">Lagrange Multiplier（拉格朗日乘數法）</p>
+<p>僅適合一次可微函數，例如多項式函數。</p>
+<p>【待補文字】</p>
+<p>一、微分等於零、求極值的觀點：</p>
+<pre>
+f(x,y)求極值，限制x y必須滿足g(x,y) = 0。
+
+因為 g(x,y) = 0
+湊得 f(x,y) + λ × g(x,y) = f(x,y)   for all (x,y) : g(x,y) = 0
+
+觀察 h(x,y) = f(x,y) + λ × g(x,y) 這一個 h 函數。
+觀察 λ ，可以發現不管 λ 怎麼變，
+符合 g(x,y) = 0 的 (x,y) ，其函數值 h(x,y) 永遠不變；
+但是其他地方的函數值就會一直變。
+欲求永遠不變的地方：
+對 λ 進行偏微分，讓斜率是 0。
+
+另外一方面， f(x,y) + λ × g(x,y) 的極值，也就是 f(x,y) 的極值。
+欲求 f(x,y) + λ × g(x,y) 的極值：
+對 x 進行偏微分，讓斜率是 0。
+對 y 進行偏微分，讓斜率是 0。
+
+三條偏微分方程式聯立之後，就得到符合限制的極值。
+{ ∂h(x,y)/∂λ = 0
+{ ∂h(x,y)/∂x = 0
+{ ∂h(x,y)/∂y = 0
+
+也就是
+{ g(x,y) = 0
+{ ∂f(x,y)/∂x + λ × ∂g(x,y)/∂x = 0
+{ ∂f(x,y)/∂y + λ × ∂g(x,y)/∂y = 0
+
+概念上也可以看作是增加一個λ變量、增加一個維度來解決問題。
+
+附帶一提，二式三式合起來看，剛好就是梯度。梯度恰是-λ倍。
+∇f(x,y) + λ × ∇g(x,y) = 0
+∇f(x,y) = -λ × ∇g(x,y)
+一開始湊式子的時候調整負號　h(x,y) = f(x,y) - λ × g(x,y)，
+就能得到熟悉的 ∇f(x,y) = λ × ∇g(x,y) 了。
+</pre>
+<p>二、幾何的觀點：</p>
+<p>推廣到多個限制、不等式，稱作Karush-Kuhn-Tucker Conditions。套用線性規劃解決。</p>
+<p>限制式推廣成是兩個函數的加權平均，稱做Alternating Direction Method of Multipliers。</p>
+<p><a href="http://en.wikipedia.org/wiki/Sequential_minimal_optimization">http://en.wikipedia.org/wiki/Sequential_minimal_optimization</a></p>
+<p class="t">Regularization（正則化）</p>
+<pre>
+minimize f(x)      subject to g(x) ≥ 0, h(x) > 0, ...
+</pre>
+<p>根據Lagrange Multiplier，限制條件得併入原式，變成一次微分等於零的問題（求鞍點、而非極值）。</p>
+<pre>
+∂/∂x f(x) + α g(x) + β h(x) + ... = 0  (α ≥ 0, β ≥ 0, ...)
+</pre>
+<p>α β ...自訂實際數值。如果運氣非常好，將變成最佳化問題。</p>
+<pre>
+minimize f(x) + α g(x) + β h(x) + ...   (α ≥ 0, β ≥ 0, ...)
+</pre>
+<p>α β ...理應是未知數，不過此處改成了自訂數值。我們視問題需要，訂立適當數值。數值越小，限制條件的影響力就越小，類似於加權平均的概念。</p>
+<p>g(x) h(x) ...稱做loss function，應該是「損失越少越好」的意思。我們視問題需要，訂立適當函數，例如x的長度越小越好g(x) = ‖x‖；物理學的做功越少越好g(x) = F x。</p>
+<p>明定準則、施予規範，故稱之為「正則化」。優點是可以微調，缺點是全憑運氣。</p>
+
+</div></div><div class="a"><div class="h">
+<p class="b">Constraint Satisfaction</p>
+</div><div class="c">
+<p class="t">概論</p>
+<p>只有限制條件。</p>
+<p class="t">Branch and Bound（分支定界法）</p>
+<p>這是一個過時的演算法，觀念陳舊，已被淘汰。</p>
+<p>n個變數x1…xn，找f(x)的可行解。</p>
+<p>在線性規劃問題當中，b&b每次將其中一個變數xi的「邊界（可能是上限或者是下限）」給確定下來。由於x的大小與f(x)的大小有直接關連，所以藉由調整每個變數xi的上下限，就能夾擠出f(x)的極值。</p>
+<p><a href="https://www.youtube.com/watch?v=BbrZsG7zesE">https://www.youtube.com/watch?v=BbrZsG7zesE</a></p>
+<p>在離散組合問題當中，b&b又不一樣了。b&b每次將其中一個變數xi的「確切數值」給確定下來。由於x的大小與f(x)的大小沒有直接關連，所以採用了比較複雜的策略：一開始設定f(x)的極值的下限是零，隨著已知變數越來越多，逐步增加f(x)的極值的下限，以逼近f(x)的極值。至於f(x)的極值的上限，並沒有用來尋找極值，主要是用來阻止多餘的分支。</p>
+<p><a href="https://www.youtube.com/watch?v=nN4K8xA8ShM">https://www.youtube.com/watch?v=nN4K8xA8ShM</a></p>
+<p>在離散組合問題當中，b&b跟state space search基本相同。唯一的差異在於，作業研究（工管）講到b&b的時候，通常會簡化矩陣的row和column，只拿不為零的數值來分支。人工智慧（資工）講到state space search的時候，是使用原本矩陣。</p>
+
+</div></div><div class="a"><div class="h">
+<p class="b">Hierachical Optimization（Under Construction!）</p>
+</div><div class="c">
+<pre>
+物理的彈簧系統
+數學的 hierarchical gradient decesent / computational graph derivativate
+</pre>
+</div></div><script src="h.js"></script></body></html>

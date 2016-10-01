@@ -1,0 +1,159 @@
+﻿<html lang="zh-TW"><head><meta charset="UTF-8" /><link rel="stylesheet" href="style.css" />
+<title>演算法筆記 - Root Finding</title></head><body>
+<div class="a"><div class="h">
+<p class="b">Root Finding</p>
+</div><div class="c">
+<p class="t">Root Finding</p>
+<p>找到確切的輸入數值，讓輸出數值是零，稱作「求根」。這樣的輸入，稱作「根」，可能有許多個、也可能不存在。</p>
+<img src="RootFinding1.png">
+<p>以函數圖形表達函數的根：當輸入變數只有一個，是函數曲線與X軸的相交之處。當輸入變數只有兩個，是函數曲面與XY平面的相交之處。當輸入變數有許多個，請讀者自行推廣。</p>
+<img src="RootFinding2.png">
+<p>中學數學談過多項式函數的求根，相信大家印象深刻。比如一元二次多項式函數的求根（解一元二次多項式方程式），有個號稱數學界最難背的公式：二a分之負b正負根號b平方減四ac。</p>
+<pre>
+          _________
+    -b ± V b<sup>2</sup> - 4ac
+x = ---------------
+          2a
+</pre>
+<p>以下則是談一般的函數的求根。多項式函數，性質優美，擁有特定公式；一般的函數，雜亂無章，沒有固定公式，只好利用電腦了。最簡單的求根演算法，就是窮舉法：窮舉各種輸入，看看輸出是不是零。</p>
+<textarea>
+// 使用了function pointer的語法。
+// 把f(x)當作參數，比較有個函式的模樣了！
+void roots(float (*f)(float))
+{
+	// 假設根可能在-100000到+100000之間
+	for (float x = -1e5; x <= +1e5; x += 0.001)
+//		if (f(x) == 0)
+		if (fabs(f(x)) < 0.001)	// 避免誤差
+			cout << x << "是根";
+}
+</textarea>
+<p>窮舉法非常慢。接下來介紹更快的方法。</p>
+
+</div></div><div class="a"><div class="h">
+<p class="b">Root Finding: Bisection Method</p>
+</div><div class="c">
+<p class="t">用途</p>
+<p>用來找到連續函數的根。bi-這個字首是「雙」的意思，而section是「分段」的意思。中文譯作「二分法」。</p>
+<p class="t">勘根定理</p>
+<p>解釋演算法之前，得先複習一下高中數學的「勘根定理」。</p>
+<p>連續函數的圖形當中，當起點與終點分別在X軸的兩側，那麼一定在某處穿過X軸。換句話說，在某處有根。換句話說，至少有一個根。</p>
+<img src="BisectionMethod1.png">
+<p class="t">以數學符號說明勘根定理</p>
+<p>連續函數f(x)，任意區間[a,b]。a和b分別代入f(x)，得到f(a)和f(b)。</p>
+<p>如果f(a)和f(b)是一正一負、是異號，即f(a) f(b) < 0，就表示座標(a, f(a))和座標(b, f(b))這兩點位於X軸的兩側。因為f是連續函數，所以座標(a, f(a))到座標(b, f(b))的路線，一定碰到X軸至少一次──區間[a,b]裡面至少有一個根。</p>
+<img src="BisectionMethod1.png">
+<p>如果f(a)和f(b)是同號，即f(a) f(b) > 0，就表示座標(a, f(a))和座標(b, f(b))這兩點位於X軸的同側──區間[a,b]裡面可能有根，也可能無根。</p>
+<img src="BisectionMethod2.png">
+<p>如果f(a)和f(b)有零，即f(a) f(b) = 0，此時a和b就是根──區間[a,b]裡面可能還有其他根，也可能無根。</p>
+<img src="BisectionMethod3.png">
+<p>另外，當[a,b]的端點恰好沒有定義在f(x)當中，則無法計算出f(a)和f(b)的值。要解決這個問題，可以將區間略微縮小一些，像是[a + 0.001, b - 0.001]，即可避免端點沒有定義的情況。</p>
+<p class="t">比較差的演算法</p>
+<p>將區間切兩半，遞迴縮小區間，夾擠、逼近根。</p>
+<img src="BisectionMethod4.png">
+<p>這種方式有個很大的問題：如果左右兩個區間都做檢查，結果就跟窮舉法沒兩樣。</p>
+<p class="t">比較好的演算法</p>
+<p>不如只檢查其中一個區間吧！</p>
+<p>只檢查確定有根的區間，即f(a)和f(b)異號的區間。如果左右兩個區間都確定有根，那麼就只檢查左邊區間。一旦找到根，就馬上結束遞迴。</p>
+<img src="BisectionMethod5.png">
+<textarea>
+float bisection(float a, float b, float (*f)(float))
+{
+	float fa = f(a), fb = f(b), c = a, fc;
+	while (b - a > 1e-3)
+	{
+		c = (a + b) / 2;
+		fc = f(c);
+		if (fc == 0) break;
+		else if (fa * fc < 0) {b = c; fb = fc;}
+		else {a = c; fa = fc;}
+	}
+	return c;
+}
+</textarea>
+<p>至於f(a)和f(b)同號的區間、f(a)和f(b)為零的區間，就無法處理了。</p>
+<p>這就是二分法。二分法其實也正是Binary Search。</p>
+<p class="t">找到所有根</p>
+<p>整條數線細分成許多微小區間。f(a)和f(b)同號的區間，視作沒有根；f(a)和f(b)為零的區間，視作只有端點有根；f(a)和f(b)異號的區間，視作剛好有一個根，實施二分法找到根。</p>
+<p>只要細分的足夠細膩，理論上可以找到所有根，除了一種例外：根恰好是區域極值。此時必須配合其他的求根方法，才能處理這個例外。</p>
+<img src="BisectionMethod6.png">
+<textarea>
+void roots(float (*f)(float))
+{
+	float width = 100;	// 微小區間的寬度
+
+	// 假設所有根都在-100000到+100000之間
+	for (float x = -1e5; x < +1e5; x += width)
+	{
+		if (f(x) == 0) cout << x;	// x是根
+
+		if (f(x) * f(x + width) < 0)
+			cout << bisection(x, x + width, f);
+	}
+}
+</textarea>
+<p class="t">精確度</p>
+<p>分割區間越多次，答案就越精確。</p>
+<p>float、double變數，能夠儲存的位數有限，不可能精確，有著一個極限。不斷分割區間，就能到達極限。一個float變數的範圍約為10^38到10^-38，分割區間log₂(10^76) ≒ 252次，定能得到float變數所能儲存的最精確的數值。</p>
+<textarea>
+float bisection(float a, float b, float (*f)(float))
+{
+	float fa = f(a), fb = f(b), c;
+	while (true)	// 到達精確的極限
+	{
+		c = (a + b) / 2;
+		if (a == c || b == c) break;
+		float fc = f(c);
+		if (fa * fc < 0) {b = c; fb = fc;}
+		else {a = c; fa = fc;}
+	}
+	return c;
+}
+</textarea>
+<p>根據個人測試，不管迴圈計算多少遍，a b的大小關係永遠不變，而c永遠會在[a,b]當中，不會超出範圍。</p>
+<p>迴圈不斷計算之後，有些函數造成a b最終相等，也有些函數造成a b永遠不相等，永遠相差一個最小精確度的值。要解決不相等的問題，只需判斷c是a或是b即可。</p>
+<p class="e">UVa 358 10341 10428 10566 10668</p>
+<p class="t">範例：求平方根</p>
+<textarea>
+int sqrt(int x)
+{
+	int a = 1, b = x;
+	while (a <= b)
+	{
+//		int c = (a + b) / 2;
+		int c = a + (b - a) / 2;	// 防止溢位
+		if (c * c == x) return c;
+		else if (c * c > x) b = c - 1;
+		else a = c + 1;
+	}
+	return b;
+}
+</textarea>
+<p class="t">嚴格遞增函數</p>
+<p>連續函數，嚴格遞增（減）；若有根，保證只有一個根。</p>
+<img src="BisectionMethod7.png">
+
+</div></div><div class="a"><div class="h">
+<p class="b">Root Finding: Secant Method</p>
+</div><div class="c">
+<p class="t">割線法</p>
+<p>一張圖勝過千言萬語。</p>
+<img src="SecantMethod1.png">
+<p>一開始選定的兩點，如果不夠靠近根，割線可能會亂跑。</p>
+<img src="SecantMethod2.png">
+<p>運氣不好時，割線呈水平線，割線法會故障；割線趨近水平線，下一點會溢位。</p>
+
+</div></div><div class="a"><div class="h">
+<p class="b">Root Finding: Newton's Method</p>
+</div><div class="c">
+<p class="t">牛頓法</p>
+<p>割線法採用割線，牛頓法採用切線。牛頓法的收斂速度比較快，但是計算時間比較多。</p>
+<img src="Newton'sMethod1.png">
+<p>如果給定的函數，其導數不需要dx，例如多項式函數，那麼我們可以預先用紙筆推導導數式子，讓計算結果更精準。</p>
+<p class="e">UVa 11277</p>
+<p class="t">凸函數</p>
+<p>連續函數，斜率嚴格遞增（減）；若有根，牛頓法能找到根。</p>
+<p>以斜率的觀點來看牛頓法，牛頓法不斷地縮小斜率範圍。</p>
+<img src="Newton'sMethod2.png">
+<p>連續函數，斜率嚴格遞增（減），正是凸（凹）函數：函數圖形上面任意劃一道割線，總是凸出來的函數。</p>
+</div></div><script src="h.js"></script></body></html>

@@ -1,0 +1,158 @@
+﻿<html lang="zh-TW"><head><meta charset="UTF-8" /><link rel="stylesheet" href="style.css" />
+<title>演算法筆記 - Signal</title></head><body>
+<div class="a"><div class="h">
+<p class="b">Signal</p>
+</div><div class="c">
+<p class="t">Signal</p>
+<p>訊號是一連串的數字。分為兩種，離散和連續。</p>
+<img src="Signal1.png">
+<p>對於數學家來說，就是一維數列（離散）、一維函數（連續）。對於訊號學家來說，就是數位訊號（離散）、類比訊號（連續）。「訊號」只不過是一個比較親民的詞彙而已。</p>
+
+</div></div><div class="a"><div class="h">
+<p class="b">Signal Reconstruction</p>
+</div><div class="c">
+<p class="t">Signal Reconstruction</p>
+<img src="Signal2.png">
+<p>訊號重建。找到原本波形。其實就是找到內插函數。</p>
+<p>數列通常很長。如果採用多項式內插，那麼內插函數必須是非常高次的多項式。然而，非常高次的多項式，有劇烈震盪的現象，無法平順的符合資料，稱做「<a href="http://en.wikipedia.org/wiki/Runge's_phenomenon">Runge's Phenomenon</a>」。</p>
+<p>數列通常取自真實世界、源自物理現象。例如聲音訊號，是由不同頻率的波，疊加而成的。詳見「<a href="Wave.html">傅立葉轉換</a>」。</p>
+<p>由於上述兩點，因而衍生了其他內插演算法。</p>
+<p class="t">Signal Resampling</p>
+<img src="Signal5.png">
+<p>訊號重新取樣。改變疏密程度，重新求得數值。變密稱做upsampling、變疏稱做downsampling。也有人把變密稱做interpolation、變疏稱做decimation。</p>
+<p>首先重建訊號，找到內插函數。代入新位置，求得新訊號。</p>
+<p class="t">演算法（Triangle Interpolation）（Linear Interpolation）</p>
+<img src="Signal3.png">
+<p>三角波，等價於線性內插。不切實際，但是算得快。</p>
+<p class="t">演算法（Sinc Interpolation）</p>
+<img src="Signal4.png">
+<p>方波函數，實施逆向傅立葉轉換，頻域轉時域（反過來也行），就是sinc函數。如果頻域只有特定幾個頻率有方波（理想中是無限薄的脈衝，但是實際上是有點厚的方波），那麼時域採用sinc函數，最理想不過了。算得極慢。</p>
+<p class="t">演算法（Lanczos Interpolation）</p>
+<p><a href="http://en.wikipedia.org/wiki/Lanczos_resampling">http://en.wikipedia.org/wiki/Lanczos_resampling</a></p>
+<p>加強版。自由調整胖瘦。砍掉綿延的小波，只留主要的部分。</p>
+<p class="t">演算法（Mitchell-Netravali Filter）</p>
+<p><a href="http://de.wikipedia.org/wiki/Mitchell-Netravali-Filter">http://de.wikipedia.org/wiki/Mitchell-Netravali-Filter</a>
+<p>加強版。改用三次多項式函數模擬之。算得快。</p>
+
+</div></div><div class="a"><div class="h">
+<p class="b">Signal Estimation</p>
+</div><div class="c">
+<p class="t">Signal Estimation</p>
+<img src="Signal6.png">
+<p>訊號估計。找到訊號的規律。其實就是找到迴歸函數。迴歸函數是遞迴函數、週期函數等等具有規律的函數。</p>
+<p>誤差設定成「<a href="http://en.wikipedia.org/wiki/Mean_squared_error">均方誤差Mean Squared Error</a>」：平方誤差，再除以數列長度；即是平方誤差的平均值。如此一來，長度不同的數列，得以互相比較誤差大小。</p>
+<p class="t">Signal Prediction</p>
+<img src="Signal7.png">
+<p>訊號預測。訊號有某種規律，請預測接下來的訊號。</p>
+<p>首先估計訊號，找到迴歸函數。代入新位置，求得新訊號。</p>
+<p class="t">演算法（Linear Prediction）（Linear Predictive Coding）</p>
+<img src="Signal8.png">
+<p>Linear Regression是用線性函數符合資料，Linear Prediction是用線性遞迴函數符合資料。演算法請參考往後的Filter章節。時間複雜度O(N^2)，在頻域計算可加速為O(NlogN)。</p>
+<p>求得線性遞迴函數之後，欲預測下一個新訊號，直接代入最後K個舊訊號即可。時間複雜度O(K)，K是線性遞迴函數的項數。</p>
+<p>求得線性遞迴函數之後，欲預測第M個新訊號，共有四種演算法，請參考「<a href="Matrix.html">Linear Recurrence</a>」。時間複雜度O(K^2 * logM)，在頻域計算可加速為O(KlogK * logM)。</p>
+
+</div></div><div class="a"><div class="h">
+<p class="b">Signal Separation</p>
+</div><div class="c">
+<p class="t">Signal Separation</p>
+<img src="Signal9.png">
+<p>訊號分離。許多道訊號疊合在一起，請分離出原始訊號。</p>
+<p class="t">演算法（Independent Component Analysis）</p>
+<p>請參考「<a href="Representation.html">Independent Component Analysis</a>」。</p>
+<p class="t">演算法（Discrete Fourier Transform）</p>
+<p>請參考「<a href="Wave.html">Fourier Transform</a>」。</p>
+
+</div></div><div class="a"><div class="h">
+<p class="b">Signal Representation</p>
+</div><div class="c">
+<p class="t">Karhunen-Loève Transform（Hotelling Transform）</p>
+<p>Principal Compoment Analysis，數據是一道訊號。就這樣。</p>
+<p>請參考「<a href="Representation.html">Principal Component Analysis</a>」。</p>
+
+</div></div><div class="a"><div class="h">
+<p class="b">Floating Signal</p>
+</div><div class="c">
+<p class="t">Floating Signal</p>
+<img src="Noise1.png">
+<p>先前曾經介紹浮動數字。數學家命名為「隨機變數random variable」，然而一點也不隨機。</p>
+<p>經典的隨機變數：</p>
+<pre>
+uniform random variable
+binomial random variable
+Gaussian random variable
+Poisson random variable
+</pre>
+<img src="Noise2.png">
+<p>此處介紹一連串的浮動數字，也就是浮動數列。分為兩種，離散和連續。數學家命名為「隨機數列random sequence」和「隨機過程random process」，然而一點也不隨機。</p>
+<p>經典的隨機數列和隨機過程：</p>
+<pre>
+Gaussian process：每個隨機變數都是高斯分布，每個隨機變數組合都是多維高斯分布。
+Wiener process：高斯過程的積分。就是「布朗運動」。
+Markov process：以先前幾個隨機變數的數值，決定下一個隨機變數。
+</pre>
+<textarea>
+void random_process()
+{
+	default_random_engine g;
+	normal_distribution<float> d(0.0, 1.0);
+
+	// gaussian process realization
+	for (int i=0; i<100; ++i)
+		cout << d(g);
+
+	// wiener process realization
+	float value = 0;
+	for (int i=0; i<100; ++i)
+	{
+		value += d(g);
+		cout << value;
+	}
+}
+</textarea>
+<p>隨機數列和隨機過程，兩大主要應用：</p>
+<p>一、讓數列和函數具有浮動範圍、彈性範圍、緩衝範圍。例如「<a href="Regression.html">Gaussian Process Regression</a>」、「<a href="HiddenMarkovModel.html">Hidden Markov Model</a>」。</p>
+<p>二、亂跳的數列和函數。例如「<a href="http://en.wikipedia.org/wiki/Cox–Ingersoll–Ross_model">CIR Model</a>」。</p>
+<p class="t">Floating Signal的頻譜</p>
+<p>題外話。訊號學家曾經嘗試運用「<a href="Wave.html">傅立葉轉換</a>」，將隨機數列，從時域變頻域，看看是否有特性。</p>
+<p>普通的隨機數列，頻譜混亂，無解析解。</p>
+<p>滿足wide-sense stationary條件的隨機數列，則有解析解──兩兩的共相關數，可求得頻譜。而且具備常見的數學特性，諸如線性、摺積乘法對偶性、能量守恆（Parseval's theorem）。</p>
+<p>然而，滿足wss條件的浮動數列，就是每個數字幾乎一樣的數列。缺乏討論意義，也無法用以解決問題。</p>
+<p>數學家目前僅發現wss條件，尚未發現更具討論意義的條件。</p>
+
+</div></div><div class="a"><div class="h">
+<p class="b">Random Signal</p>
+</div><div class="c">
+<p class="t">Random Signal（Noise）</p>
+<p>隨機訊號，通常稱作「雜訊」或「噪訊」，沒人稱作「亂訊」。</p>
+<p>古代數學家沒有仔細區分「亂：無規矩」和「浮動：有規矩」的差別，把兩者都命名為隨機，混淆視聽。大家搞不清楚狀況的情況下，大家一直沒有深入研究雜訊的演算法。</p>
+<p>將就的方式是1D Random Number。然而數字一輪一輪循環，很蠢。</p>
+<p>將就的方式是將2D Random Number投影到一維。然而沒有任何理論根據，純粹憑感覺。</p>
+<p>個人認為應該考慮三個面向：無法預測（齊亂）、均勻分布（聚散）、相近數字不接連出現（地序）。</p>
+<p>由於沒人研究雜訊，大家只好援引浮動數列，以描述雜訊。</p>
+<p>例如「<a href="https://en.wikipedia.org/wiki/Additive_white_Gaussian_noise">White Gaussian Noise</a>」：高斯隨機數列，每個隨機變數的平均數（浮動中心）和變異數（浮動範圍）均相同。因為剛好是白雜訊，所以名稱裡面有白。</p>
+<p class="t">Random Signal的頻譜</p>
+<p><a href="http://en.wikipedia.org/wiki/Colors_of_noise">http://en.wikipedia.org/wiki/Colors_of_noise</a></p>
+<p>數學家仿照光譜由紅到紫的特性，嘗試分類雜訊。</p>
+<pre>
+ white: 強度為常數
+  grey: 強度符合人類聽覺曲線。（不那麼白）
+   red: 強度正比於頻率倒數平方。　　以頻率對數為座標軸，漸減6dB。
+  pink: 強度正比於頻率倒數。　　　　以頻率對數為座標軸，漸減3dB。（不那麼紅）
+violet: 強度負正比於頻率倒數平方。　以頻率對數為座標軸，漸增6dB。
+  blue: 強度負正比於頻率倒數。　　　以頻率對數為座標軸，漸增3dB。（不那麼紫）
+</pre>
+<textarea>
+http://vellocet.com/dsp/noise/VRand.html
+</textarea>
+<p class="t">Smooth Random Signal（Smooth Noise）</p>
+<p><a href="http://lodev.org/cgtutor/randomnoise.html">http://lodev.org/cgtutor/randomnoise.html</a></p>
+<p><a href="http://www.iquilezles.org/www/articles/warp/warp.htm">http://www.iquilezles.org/www/articles/warp/warp.htm</a></p>
+<p>計算學家運用「<a href="Interpolation.html">內插</a>」，製造柔順的雜訊。網路上已有詳細教學文章，請讀者自行參考。</p>
+<p>「<a href="http://freespace.virgin.net/hugo.elias/models/m_perlin.htm">value noise</a>」：等距設置隨機數值，內插得到其餘數值。內插是為了製造綿延感。</p>
+<p>「<a href="http://flafla2.github.io/2014/08/09/perlinnoise.html">perlin noise</a>」：柔順綿延，有點規律又不失隨機。演算法的每個步驟，好像有道理、又好像在鬼扯，非常奇葩。</p>
+<textarea>
+http://mrl.nyu.edu/~perlin/noise/
+</textarea>
+<p>「<a href="http://flafla2.github.io/2014/08/09/perlinnoise.html">fBm noise</a>」：疊加各種解析度（頻率）的雜訊，更細膩、更自然。解析度是2的各種次方。雜訊可以是上述任意一種。隱含混沌與碎形的概念。</p>
+<p>「<a href="http://graphics.pixar.com/library/WaveletNoise/paper.pdf">wavelet noise</a>」：疊加各種頻率暨振幅的波。類似fBm noise。</p>
+</div></div><script src="h.js"></script></body></html>

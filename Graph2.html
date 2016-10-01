@@ -1,0 +1,221 @@
+﻿<html lang="zh-TW"><head><meta charset="UTF-8" /><link rel="stylesheet" href="style.css" />
+<title>演算法筆記 - Graph</title></head><body>
+<div class="a"><div class="h">
+<p class="b">Graph Operation</p>
+</div><div class="c">
+<p class="t">Subgraph / Supergraph</p>
+<p>一張圖，刪除一些點、一些邊，得到的圖稱作「子圖」。</p>
+<p>原圖（沒有刪除）、空圖（完全刪除），也算是「子圖」。</p>
+<img src="GraphOperation1.png">
+<p>一張圖，增加一些點、一些邊，得到的圖稱作「父圖」。</p>
+<p>原圖（沒有增加）也算是「父圖」。</p>
+<img src="GraphOperation2.png">
+<p>subgraph和supergraph是相對的。如果A是B的子圖，那麼B就是A的父圖。我們習慣只講子圖，講一個就等於兩個都講了。</p>
+<p class="t">Minor / Subdivision</p>
+<p>一張圖，收縮一些邊、合併一些點，得到的圖稱作minor。</p>
+<p>收縮的邊，有人視情況刪除，也有人視情況不刪除、而變成連向自己的邊。</p>
+<img src="GraphOperation3.png">
+<p>一張圖，在邊上植入點，得到的圖稱作subdivision。</p>
+<img src="GraphOperation4.png">
+<p>minor和subdivision是相對的。一般只討論minor。</p>
+<p class="e">ICPC 4023</p>
+<p class="t">Oriented Graph / Underlying Graph</p>
+<p>一張無向圖，無向邊改成有向邊，稱做「定向圖」。</p>
+<img src="GraphOperation5.png">
+<p>一張有向圖，有向邊改成無向邊，稱作「底圖」。</p>
+<img src="GraphOperation6.png">
+<p>定向圖和底圖是相對的。一般只討論定向圖。</p>
+<p class="t">Complement Graph（Complement）</p>
+<p>一張圖，兩點之間沒邊變有邊、有邊變沒邊，稱作「補圖」。</p>
+<p>原圖暨補圖的所有邊，合起來是完全圖。</p>
+<img src="GraphOperation7.png">
+<p>朋友變仇人、有關變無關，整個相反顛倒，就是補圖的用處。</p>
+<p class="t">Reverse Graph（Transpose）</p>
+<p>一張有向圖，邊的方向顛倒，稱作「反向圖」。</p>
+<img src="GraphOperation8.png">
+<p>主動變被動、前進變後退，整個相反顛倒，就是反向圖的用處。</p>
+<p class="t">Line Graph</p>
+<p>一張圖當中，觀察邊與邊關係，相鄰的邊表示成一張圖，稱作「線圖」。</p>
+<img src="GraphOperation9.png">
+<p class="e">UVa 10988 11175</p>
+<p class="t">Dual Graph</p>
+<p>一張平面圖當中，觀察面與面關係，共邊的面表示成一張圖，稱作「對偶圖」。詳情請參考「<a href="PlanarGraph.html">Planar Graph</a>」。</p>
+<img src="GraphOperation10.png">
+<p class="t">Intersection Graph</p>
+<p>圖用來表達兩兩之間的關係。例如一群人，我們可以建立「朋友關係」的圖，兩個人是朋友就連一條邊，兩個人不是朋友就沒有邊。只要是兩兩之間的關係，就得以轉化成圖，運用圖論知識來分析問題。</p>
+<p>其中有個值得一提的關係是「交集關係」，是聯集交集的那個交集。兩個東西有交集就連一條邊（交集不是空集合）、沒交集就沒有邊（交集是空集合），最後得到的圖叫做「交集圖」。</p>
+<p>例如一堆線段，把互相接觸的線段，表示成圖：</p>
+<img src="IntersectionGraph1.png">
+<p>例如一堆集合，把有交集的集合，表示成圖：</p>
+<img src="IntersectionGraph2.png">
+<p>比較特別的交集圖，數學家會特地取名。例如一堆硬幣，平鋪在桌上，把互相接觸的硬幣，表示成圖，稱作Coin Graph。數學家發現硬幣圖和平面圖兩者完全等價，每一種平面圖都可以利用硬幣接觸兜出來。</p>
+<img src="IntersectionGraph3.png">
+<p>例如行程表，把撞期的行程，表示成圖，稱作Interval Graph，有著很特別的數學性質。</p>
+<img src="IntersectionGraph4.png">
+<p>例如一張圖論的圖，把共用端點的邊，表示成圖，就是先前提到的Line Graph。</p>
+<img src="IntersectionGraph5.png">
+<p>為什麼數學家特別重視交集圖呢？我也不知道。</p>
+<p>很多人把交集圖看做是一個物品。但是交集圖其實是一種變換的概念，可以看做是一個函數。</p>
+<p class="t">Dependency Graph【尚無正式名稱】</p>
+<p>除了「交集關係」之外，數學家也很重視「依賴關係」。把各個東西的仰賴對象表示成圖，最後得到的圖叫做「依賴圖」。</p>
+<p>例如一堆不等式，把變數大小關係，表示成圖：</p>
+<img src="DependencyGraph1.png">
+<p>比較特別的依賴圖，數學家會特地取名。例如專案管理領域，把工作先後次序，表示成圖，稱作「<a href="DirectedAcyclicGraph.html">Activity Network</a>」。</p>
+<img src="DependencyGraph2.png">
+<p>例如2-SAT問題，把各個clause裡面的兩個變數的取捨關係，表示成圖，稱作「<a href="Component.html">Implication Graph</a>」。</p>
+<img src="DependencyGraph3.png">
+<p>交集圖是無向圖、依賴圖是有向圖，剛好一對。</p>
+
+
+</div></div><div class="a"><div class="h">
+<p class="b">Graph資料結構（Under Construction!）</p>
+</div><div class="c">
+<p class="t">Incidence Matrix</p>
+<p>先前談了三種平易近人的資料結構：edge list、adjacency matrix、adjacency lists。</p>
+<p>接下來要談比較特殊的資料結構，適合已經相當熟悉圖論、想要進一步深入鑽研的人。</p>
+<img src="GraphDS11.png">
+<p>點有編號，邊有編號。矩陣的第一個維度代表點，第二個維度代表邊，元素(0,1)記錄著第0點與第1邊是否碰觸。</p>
+<p>無向圖當中，點碰觸邊就標上1，否則標上0。有向圖當中，點碰觸出邊就標上+1，點碰觸入邊就標上-1，否則標上0。</p>
+<p>Incidence Matrix的缺點是無法記錄自己連向自己的邊。</p>
+<p>直向閱讀比橫向閱讀來的直覺多了。</p>
+<p>Incidence Matrix可以看成是Bipartite Graph。</p>
+<p class="t">Laplacian Matrix</p>
+<img src="GraphDS12.png">
+<p>L = D - A。L D A分別代表Laplacian Matrix、Degree Matrix、Adjacency Matrix。</p>
+<p>【待補文字】</p>
+
+</div></div><div class="a"><div class="h">
+<p class="b">Graph Enumeration</p>
+</div><div class="c">
+<p class="t">Graph Enumeration</p>
+<p><a href="http://en.wikipedia.org/wiki/Graph_enumeration">http://en.wikipedia.org/wiki/Graph_enumeration</a></p>
+<p class="t">Tree Enumeration</p>
+<p><a href="http://mathworld.wolfram.com/LabeledTree.html">http://mathworld.wolfram.com/LabeledTree.html</a></p>
+<p>Prüfer Code：把一棵樹轉換成獨特的編號。</p>
+<p><a href="http://en.wikipedia.org/wiki/Prüfer_sequence">http://en.wikipedia.org/wiki/Prüfer_sequence</a></p>
+<p><a href="http://www.matrix67.com/blog/archives/682">http://www.matrix67.com/blog/archives/682</a></p>
+<p class="e">UVa 10843</p>
+
+</div></div><div class="a"><div class="h">
+<p class="b">Graph Isomorphism（Under Construction!）</p>
+</div><div class="c">
+<p class="t">Canonization</p>
+<p><a href="http://en.wikipedia.org/wiki/Graph_canonization">http://en.wikipedia.org/wiki/Graph_canonization</a></p>
+<p class="t">Isomorphism</p>
+<p><a href="http://en.wikipedia.org/wiki/Graph_isomorphism">http://en.wikipedia.org/wiki/Graph_isomorphism</a></p>
+<p><a href="http://en.wikipedia.org/wiki/Subgraph_isomorphism_problem">http://en.wikipedia.org/wiki/Subgraph_isomorphism_problem</a></p>
+<p><a href="http://en.wikipedia.org/wiki/Maximum_common_subgraph_isomorphism_problem">http://en.wikipedia.org/wiki/Maximum_common_subgraph_isomorphism_problem</a></p>
+<p class="e">UVa 10729 10904 12489 ICPC 2935</p>
+<pre>
+http://en.wikipedia.org/wiki/Graph_isomorphism_problem#Solved_special_cases
+
+subtree isomorphism問題可以用DP+matching來解決
+https://code.google.com/codejam/contest/dashboard?c=32005#s=a&a=3
+http://www.lsi.upc.edu/~valiente/riga-tre.pdf
+</pre>
+<pre>
+為什麼對？
+https://github.com/juanplopes/icpc/blob/master/uva/12489.cpp
+</pre>
+<p class="t">Sandwich</p>
+<p>http://en.wikipedia.org/wiki/Graph_sandwich_problem</p>
+
+</div></div><div class="a"><div class="h">
+<p class="b">Graph Arithmetic（Under Construction!）</p>
+</div><div class="c">
+<p class="t">Product乘法</p>
+<p><a href="http://en.wikipedia.org/wiki/Graph_product">http://en.wikipedia.org/wiki/Graph_product</a></p>
+<p class="t">Root根號</p>
+<p><a href="http://www.csie.ntu.edu.tw/~hil/paper/swat06.ppt">http://www.csie.ntu.edu.tw/~hil/paper/swat06.ppt</a></p>
+<p class="t">Power次方</p>
+<p>http://www.lab2.kuis.kyoto-u.ac.jp/keisan-genkai/reports/2006/nhc/Uri_Zwick.pdf</p>
+<p>矩陣相乘需時O(N^3)。亦得採用更快的矩陣相乘演算法，例如Strassen's Algorithm。</p>
+<p class="t">範例：Transitive Closure</p>
+<p>請參考「<a href="Transitivity.html">Transitive Closure: Matrix Multiplication</a>」。</p>
+<p>矩陣元素改成Boolean，矩陣加法改成OR運算，矩陣乘法改成AND運算即可！</p>
+<p>Strassen's Algorithm的過程包含了實數減法，在此對應到OR反元素，然而OR並沒有反元素，所以不能直接套用Strassen's Algorithm。</p>
+<p>不過我們還是可以運用矩陣乘法解題。方法很簡單：直接用實數下去算，計算完畢之後，把零當做false，非零的數字當做是true就可以了。</p>
+<p class="t">範例：Shortest Path</p>
+<p>http://www.mpi-inf.mpg.de/departments/d1/teaching/ss12/AdvancedGraphAlgorithms/Slides14.pdf</p>
+<p>http://theory.stanford.edu/~virgi/cs367/</p>
+<p>矩陣元素依然是實數，矩陣加法改成最小值運算，矩陣乘法改成加法運算即可！</p>
+<p>不過min運算沒有反元素，所以必須用特殊的方式避開反元素的計算，例如Seidel's Algorithm。</p>
+<p class="t">範例：Matching</p>
+<p>【待補文字】</p>
+<p class="t">延伸閱讀：Graph Theory與Linear Programming</p>
+<p>線性規劃非常實用！比方來說，組合最佳化的經典問題，路樹流割配，通通可以套用線性規劃。針對流割配這類複雜度較高的問題，線性規劃的速度遠比經典演算法還快！針對問題本身的性質，有著各種加速技巧，內容多到可以寫成一本書。有興趣的讀者可以自行查詢資料。</p>
+<pre>
+Minimum Ratio Spanning Tree: Dinkelbach's Algorithm
+</pre>
+<p class="t">Similarity：兩張圖的距離（Graph Kernel）</p>
+<p>註：因為Graph Distance和Graph Difference都已經被拿去用了，只好姑且取名為Similarity。</p>
+<p>http://www.raetschlab.org/lectures/amsa/5-borgwardt-graph.pdf</p>
+<p>http://www.stat.purdue.edu/~vishy/talks/Graphs.pdf</p>
+<p class="t">Similarity：兩棵樹的距離</p>
+<p>Edit Distance</p>
+<p>Rotation Distance</p>
+<p>Chain Rotation Distance</p>
+<p class="t">Similarity：兩張圖的距離（Graph Spanner）</p>
+<p>http://tmtacm.blogspot.tw/2016/01/2.html</p>
+<p class="t">Centrality</p>
+<p><a href="http://en.wikipedia.org/wiki/Centrality">http://en.wikipedia.org/wiki/Centrality</a></p>
+<p><a href="https://en.wikipedia.org/wiki/Betweenness_centrality">https://en.wikipedia.org/wiki/Betweenness_centrality</a></p>
+<p class="t">Connectivity</p>
+<p>可以用來分析網路的連結強度，但是時間複雜度很高，需要算eigenvector。</p>
+<p><a href="http://en.wikipedia.org/wiki/Algebraic_connectivity">http://en.wikipedia.org/wiki/Algebraic_connectivity</a></p>
+<p>http://www.lix.polytechnique.fr/~schwander/resources/mig/slides/pati.pdf</p>
+<pre>
+clique
+http://web.stanford.edu/class/ee378b/lect-7.pdf
+matrix multiplication of adjacency matrix ---> transitive
+當clique足夠大，此時矩陣的無限大次方，很容易在clique裡面跑來跑去
+(degree總和特別多?  不巧遇到degree很多的點怎辦? 像是星星圖那種的)
+找出eigenvalue絕對值最大的那一個eigenvector
+當中絕對值比較大的那幾個元素，差不多是個clique
+</pre>
+<p class="t">Random Walk</p>
+<p class="e">UVa 12695</p>
+
+</div></div><div class="a"><div class="h">
+<p class="b">Graph Theory</p>
+</div><div class="c">
+<p class="t">Graph Theory</p>
+<p>本站僅介紹最基礎的圖論知識。讀者如果覺得不過癮，可以自行研究下述這些進階的圖論領域。</p>
+<p>http://press.princeton.edu/titles/10314.html</p>
+<p class="t">Geometric Graph Theory</p>
+<iframe src="http://www.youtube.com/embed/jPHpgbq9uDo"></iframe>
+<p><a href="http://en.wikipedia.org/wiki/Geometric_graph_theory">http://en.wikipedia.org/wiki/Geometric_graph_theory</a></p>
+<p><a href="http://www.math.harvard.edu/~knill/graphgeometry/">http://www.math.harvard.edu/~knill/graphgeometry/</a></p>
+<p>引入距離的概念。</p>
+<p class="t">Topological Graph Theory</p>
+<a href="https://commons.wikimedia.org/wiki/File:Tesseract.gif"><img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Tesseract.gif"></a>
+<p><a href="http://en.wikipedia.org/wiki/Topological_graph_theory">http://en.wikipedia.org/wiki/Topological_graph_theory</a></p>
+<p>著重於點與邊。發掘特殊的圖，建立從屬關係。</p>
+<pre>
+minor containment problem -> 問一張圖是不是有某個minor。至少是NP-complete吧。
+http://en.wikipedia.org/wiki/Graph_minor
+http://en.wikipedia.org/wiki/Robertson–Seymour_theorem
+http://en.wikipedia.org/wiki/Graph_structure_theorem
+定參演算法
+</pre>
+<p class="t">Extremal Graph Theory</p>
+<p><a href="http://en.wikipedia.org/wiki/Extremal_graph_theory">http://en.wikipedia.org/wiki/Extremal_graph_theory</a></p>
+<p>著重屬性計量。</p>
+<p class="t">Structural Graph Theory</p>
+<p>研究圖的各種架構方式、描述方式。</p>
+<p>本站僅提到兩種方式：用點和邊架構出圖、用交集架構出圖。</p>
+<p class="t">Algebraic Graph Theory與Spectral Graph Theory</p>
+<p><a href="http://en.wikipedia.org/wiki/Algebraic_graph_theory">http://en.wikipedia.org/wiki/Algebraic_graph_theory</a></p>
+<p><a href="http://en.wikipedia.org/wiki/Spectral_graph_theory">http://en.wikipedia.org/wiki/Spectral_graph_theory</a></p>
+<p>http://ocw.mit.edu/courses/mathematics/18-409-topics-in-theoretical-computer-science-an-algorithmists-toolkit-fall-2009/lecture-notes/</p>
+<p>以代數描述一張圖、分析一張圖。</p>
+
+</div></div><div class="a"><div class="h">
+<p class="b">Hypergraph</p>
+</div><div class="c">
+<p class="t">Hypergraph</p>
+<img src="Hypergraph1.png">
+<p>「圖」是談兩個東西之間的關係，「超圖」則是談多個東西之間的關係，例如三個東西之間的關係。</p>
+<p>超圖的資料結構，不適合採用adjacency matrix，因為矩陣必須變成多個維度，浪費記憶體空間。比較好的方式是採用incidence matrix。</p>
+<p>一般的圖就很夠用了，通常不會用到超圖。</p>
+</div></div><script src="h.js"></script></body></html>

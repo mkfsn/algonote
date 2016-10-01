@@ -1,0 +1,732 @@
+﻿<html lang="zh-TW"><head><meta charset="UTF-8" /><link rel="stylesheet" href="style.css" />
+<title>演算法筆記 - Computer Programming</title></head><body>
+<div class="a"><div class="h">
+<p class="b">Programming（Under Construction!）</p>
+</div><div class="c">
+<p class="t">Program</p>
+<p>程式。控制電腦運作的指令。</p>
+<p class="t">程式語言與程式設計</p>
+<p>這裡所談的程式語言，是指程式語言規格書上面記載的東西，例如pointer、sequence point、locale等等。雖然程式語言博大精深，但是規格書上面一定都有提到，不會找不到資料。</p>
+<p>這裡所談的程式設計，是指生產程式碼。有些書教你如何把程式寫漂亮，例如code complete；有些書教你如何規劃程式碼，例如head first ooad；甚至有些書教你解決益智問題，例如cracking the coding interview。旁敲側擊的學問非常多，但是最核心的課題卻很少人探討：遇到一個問題，我應該填哪些程式碼，才能漂亮的解決這個問題？</p>
+<p>程式語言的學習資料非常多，但是程式設計的學習資料非常少，現今世界上還沒有一套固定的教學流程。</p>
+<p>其他諸如語文、數學、運動、藝術等等學問，都已經有固定的學習流程。比如籃球來說，體能訓練、原地運球、傳球、空手跑位、檔拆、進攻和防守戰術，每一個項目還可以細分很多子項目。相比之下，程式設計該教哪些東西、該用什麼順序教，可謂一團迷霧、全憑感覺。</p>
+<p>無論是學校教授或者補習班老師，都是在教授程式語言的時候，偶爾穿插一點點自身程式設計的經驗。最後安排幾個作業，交給學生自己去領悟。想當然啦，不能領悟的學生占大多數。學期中不斷經歷挫敗，學期末僅留下痛苦的回憶和難忘的分數。</p>
+<p>由於程式設計沒有一套確定的教學流程，於是出現了各式各樣的見解。有些人認為參與open source，從別人的程式碼汲取經驗，多看多寫就會慢慢進步。</p>
+<p>程式解題也是一種不錯的方式。透過大量的、變化多端的題目，讓學生在練習過程當中，漸漸掌握住「什麼樣的問題要用什麼樣的程式碼」。</p>
+<p class="t">程式語言課程</p>
+<pre>
+mooc: ntu / standford / beijng
+online learning company and website
+programming languages overview: scratch
+computational thinking
+</pre>
+<p><a href="https://cs50.harvard.edu/">Harvard cs50</a>、<a href="https://www.cs.princeton.edu/courses/archive/spring16/cos333/lectures.html">Princeton cos333</a></p>
+<pre>
+https://www.udacity.com/google
+https://mitpress.mit.edu/sicp/
+http://pydoing.blogspot.tw/2014/06/cpp-guide.html
+</pre>
+<p>讀者可以參考<a href="http://www.deitel.com/Books/C/CHowtoProgram9e/tabid/3644/Default.aspx">《C++ How to Program》</a>這本書。</p>
+
+</div></div><div class="a"><div class="h">
+<p class="b">Programming Technique（Under Construction!）</p>
+</div><div class="c">
+<p class="t">Procedure Programming</p>
+<pre>
+simulation - "concept/image -> code"
+           - implement queue with shift-array/infinite-array/linked list
+           - first example
+           - link to josephus problem
+
+simulation - functionalize  抽取概念變函數
+             print char => for loop => function
+
+simulation - parameterize
+           - add coordinate int x, int y , to move triangle's position
+
+simulation - abstraction
+           - print @ + print space => print char
+           - need a more complicated case.
+             texi / bus => car, tank maybe car maybe weapon.
+
+simulation - generalization aka build library 常見功能變函數
+           - fill buffer, let buffer array into char pointer, memset
+
+start procedural programming!
+
+simulation - modularize aka member/header file
+           - clean buffer, fill buffer, print buffer
+           - print square border
+           - mini editor
+
+start oo!
+
+simulation - member aka has-a relationship
+           - screen buffer (c:procedure/c++:class)
+             exclude some function in modularize section.
+
+simulation - inherit aka is-a relationship
+           - it is hard to make a example
+</pre>
+<p>範例：等車排隊。等車的人排成一列。人不時抵達，隊伍增長；車不時抵達，隊伍減短。請隨時紀錄排隊隊伍依序是誰。</p>
+<textarea>
+</textarea>
+<p>範例：印出直角三角形。</p>
+<textarea>
+</textarea>
+<p class="t">Module</p>
+<p>編寫程式時，可以抽取概念成為一個功能，稱作「模組化modularize」。</p>
+<p>範例：五子棋。獲勝條件是五子連線。五子連線有八個不同方向，但是都是一直線──抽取「判斷一直線」這個概念，寫成一支function，之後重複呼叫八次即可。讀者可以想一想：function的參數是什麼？</p>
+<textarea>
+</textarea>
+<p>範例：印出直角三角形。一行分成三階段：三角形、空白、三角形。</p>
+<textarea>
+// 三角形、空白、三角形，成一行
+void print_line(int l, int n)	// l 是該行的三角形長度、n 是三角形大小
+{
+	for (int i=0; i<l; i++) cout << '@';	// 三角形
+	for (int i=l; i<n+1; i++) cout << ' ';	// 空白
+	for (int i=0; i<l; i++) cout << '@';	// 三角形
+	cout << '\n';
+}
+
+// 多行成直角三角形
+void print_triangle(int n)	// n 是三角形大小
+{
+	for (int i=0; i<n; i++)
+		print_line(n-i-1);
+}
+</textarea>
+<p class="e">UVa 10267 476 477 478</p>
+<p class="e">UVa 196 215 512</p>
+<p class="t">Array Indexing</p>
+<p>「索引」是電腦的絕技！一個元素存放到陣列之後，不論是在陣列的哪個地方，只要利用索引值（index），就能一瞬間找到元素。大多數的演算法都運用了「索引」的技巧，讓程式執行速度更快。</p>
+<p>以下介紹索引的常見運用方式。</p>
+<p class="t">Array Indexing：定位</p>
+<p>將物件放入陣列中，array[位置] = 物件。</p>
+<p>當元素很多時，我們可以放到陣列裡。我們只要記錄索引值，依舊可以常數時間得到元素。</p>
+<p>範例：求最大值。將元素連續地放入陣列，若想紀錄一元素，僅需一索引值。</p>
+<textarea>
+void find_maximum() // 用變數直接記最大值
+{
+	int array[5] = {3, 6, 9, 8, 1};
+	
+	int max = -10000;
+	for (int i=0; i<5; i++)
+		if (array[i] > max)
+			max = array[i];
+
+	cout << "最大值為" << max;
+}
+
+void find_maximum() // 用索引值紀錄最大值位置
+{
+	int array[5] = {3, 6, 9, 8, 1};
+
+	int p = 0;	// 最大值的索引值
+	for (int i=1; i<5; i++)
+		if (array[i] > array[p])
+			p = i;
+
+	cout << "最大值為" << array[p];
+}
+</textarea>
+<p>範例：求子字串。將元素連續地放入陣列，若想紀錄一區間，僅需頭尾的索引值。</p>
+<textarea>
+void substring()
+{
+	char s[10] = "Hello, world!";
+	char t[10];
+
+	int i, j;
+	for (i=2, j=0; i<6; i++, j++)
+		t[j] = s[i];
+	t[j] = '\0';
+
+	cout << "s的子字串[2,6)是" << t;
+}
+</textarea>
+<p>範例：連續數字和。將元素連續地放入陣列，利用問題本身的數學性質以及索引值，快速得到答案。</p>
+<textarea>
+void consecutive_sum()
+{
+	int array[5] = {3, 6, 9, 8, 1};
+	int sum[5] = {0};
+	
+	sum[0] = array[0];
+	for (int i=1; i<5; i++)
+		sum[i] = sum[i-1] + array[i];
+
+	cout << "區間[2,4]的連續數字和是" << sum[4] - sum[2-1];
+}
+</textarea>
+<p>範例：求中位數。將元素依照大小順序並連續地放入陣列，利用索引值得到位於中間的元素。</p>
+<textarea>
+void median()
+{
+	int array[5] = {1, 3, 6, 8, 9};	// 由小到大排序
+	cout << "中位數是" << array[5/2];
+}
+</textarea>
+<p>範例：二分搜尋法（binary search）。將元素依照大小順序並連續地放入陣列，然後夾擠索引值。如果使用串列，因為元素們都沒有索引值，就無法使用二分搜尋法。</p>
+<textarea>
+int binary_search()
+{
+	int array[5] = {1, 3, 6, 8, 9};	// 由小到大排序
+
+	int pivot = 3;					// 搜尋陣列裡有沒有3
+	int left = 0, right = 4;		// 索引值範圍
+	while (left <= right)
+	{
+		int mid = (left + right) / 2;
+		if (array[mid] < pivot)
+			left = mid + 1;
+		else if (array[mid] > pivot)
+			right = mid - 1;
+		else if (array[mid] == pivot)
+			return mid;
+	}
+	return -1;	// 找不到
+}
+</textarea>
+<p>範例：二元樹（binary tree）。元素的索引值對應到樹的結構，是一種特殊的定位。</p>
+<textarea>
+// 得到array[index]的左邊小孩的索引值
+int left_child_index(int index) {return index * 2;}
+
+// 得到array[index]的右邊小孩的索引值
+int right_child_index(int index) {return index * 2 + 1;}
+
+void binary_tree()
+{
+	int array[5 + 1] = {0, 3, 6, 9, 8, 1};	// array[0]不使用
+	cout << "根為" << array[1];
+	cout << "根的左邊小孩是" << array[ left_child_index(1) ];
+	cout << "根的右邊小孩是" << array[ right_child_index(1) ];
+}
+</textarea>
+<p>範例：堆疊（stack）、佇列（queue）。元素連續地放入陣列，然後以改變索引值的方式，來動態增減堆疊及佇列的元素。</p>
+<textarea>
+void stack()
+{
+	int stack[10];				// 一個堆疊
+	int top = 0;				// 索引值
+
+	stack[top++] = 3;			// push
+	stack[top++] = 6;			// push
+
+	if (top > 0)				// is empty?
+		int n = stack[--top];	// pop
+}
+
+void queue()
+{
+	int stack[10];				// 一個佇列
+	int front = 0, rear = 0;	// 索引值
+
+	queue[rear++] = 3;			// push
+	queue[rear++] = 6;			// push
+
+	if (front < rear)			// is empty?
+		int n = queue[front++];	// pop
+}
+</textarea>
+<p class="t">Array Indexing：歸類並標記</p>
+<p>物件直接作為陣列的索引值，array[物件] = 物件的屬性。</p>
+<p>範例：正整數集合。物件是：正整數，物件的屬性是：是否在集合裡頭出現。</p>
+<textarea>
+void add_element()
+{
+	// 一個有限集合
+	bool set[100];
+
+	// 初始化為空集合
+	for (int i=0; i<100; i++) set[i] = false;
+
+	// 設定集合元素
+	set[5] = true;	// 集合裡有5
+	set[3] = true;	// 集合裡有3
+	set[3] = false;	// 集合裡沒有3
+}
+</textarea>
+<p>範例：統計英文字母出現次數。物件是英文字母，物件的屬性是英文字母的出現次數。</p>
+<textarea>
+void count_letter()
+{
+	char s[20] = "hi, I am a boy";
+
+	// 歸類並標記
+	// 26個字母，字母的ASCII值剛好連續。
+	int count[26 + 26] = {0};
+	for (int i=0; s[i] != '\0'; i++)
+		if (s[i] >= 'a' && s[i] <= 'z')
+			count[ s[i] - 'a' ]++;
+		else if (s[i] >= 'A' && s[i] <= 'Z')
+			count[ s[i] - 'A' ]++;
+
+	// 印出英文字母的出現次數，不分大小寫。
+	for (int i=0; i<26; i++)
+		if (count[i] > 0)
+			cout << char('A' + i) << "的個數為" << count[i];
+}
+</textarea>
+<p>範例：計數排序法（counting sort）。索引值的大小順序，剛好也是元素的大小順序，故可用於排序。</p>
+<textarea>
+void counting_sort()
+{
+	// 假設陣列裡數值不重複
+	int array[5] = {3, 6, 9, 8, 1};
+
+	// 歸類並標記
+	bool count[100] = {false};
+	for (int i=0; i<5; i++)
+		count[ array[i] ] = true;
+
+	// 索引值的大小順序，剛好也是元素的大小順序。
+	for (int i=0, j=0; i<100 && j<5; i++)
+		if (count[i])   // 數值不重複
+			array[j++] = i;
+}
+</textarea>
+<p>範例：雜湊表（hash table）。元素的索引值由特殊方法決定，是一種特殊的歸類。</p>
+<textarea>
+int hash(int n)	// 根據元素的數值來製造一個index
+{
+	return n * 97 % 100;
+}
+
+void hash_table()
+{
+	int array[5] = {3, 6, 9, 8, 1};
+
+	int table[100];
+	for (int i=0; i<5; i++)
+	{
+		// 替array[i]製造一個index
+		int index = hash(array[i]);
+
+		// 將array[i]放入hash table
+		table[index] = array[i];
+	}
+}
+</textarea>
+<p class="t">Array Indexing：轉換</p>
+<p>array[物件] = 另一個物件。類似函數的概念。</p>
+<p>範例：取代（substitution）、移位（transposition）。取代和移位是密碼學的基礎概念。取代是文字的轉換，移位則是位置的轉換。</p>
+<textarea>
+void substitution()
+{
+	char s[10] = "Hello!", t[10] = "";
+
+	// 建立轉換表格
+	char crypt[128];
+	for (int i=0; i<128; i++) crypt[i] = i;
+	crypt['!'] = 'w';
+	crypt['H'] = 'Y';
+
+	// 開始轉換
+	int n;
+	for (n=0; s[n] != '\0'; n++)
+		t[n] = crypt[ s[n] ];
+	t[n] = '\0';
+}
+
+void transposition()
+{
+	char s[10] = "Hello!", t[10] = "";
+
+	// 建立轉換表格
+	int crypt[50];
+	for (int i=0; i<50; ++i) crypt[i] = i;
+	crypt[2] = 3;
+	crypt[3] = 5;
+	crypt[5] = 2;
+
+	// 開始轉換
+	int n;
+	for (n=0; s[n] != '\0'; n++)
+		t[n] = crypt[ s[n] ];
+	t[n] = '\0';
+}
+</textarea>
+<p>範例：page table。作業系統的機制，可將虛擬位址轉換成實體位址，是位址的轉換。</p>
+<textarea>
+程式碼略。
+</textarea>
+<p class="t">附錄：定址的時間複雜度</p>
+<p>當索引值大小為N時，有人認為定址的時間複雜度是O(log<sub>2</sub>N)，也有人認為是O(1)。這兩種說法都是有其依據的。</p>
+<p>以數學的觀點來看：N總共有log<sub>2</sub>N個位元，用二元樹的概念，依照各個位元的數值是0或是1進行分支，分支到底後就完成定址了。所以定址的時間複雜度是O(log<sub>2</sub>N)。</p>
+<p>以電路的觀點來看：一顆中央處理器可以平行處理32位元（現在已有64位元），只要是介於0到2^32-1的索引值，都可以在1單位時間完成定址，而不必用32單位時間來完成定址。所以定址的時間複雜度是O(1)。</p>
+<p>討論演算法的時間複雜度，我們傾向假設定址的時間複雜度是O(1)。</p>
+<p class="t">附錄：定址的範圍</p>
+<p>方才提到一顆中央處理器可以平行處理32位元，理論上可以定址到2^32以內的位址。一個位址一般擁有1byte的記憶體大小，所以我們利用定址方式，可以運用的記憶體就有2^32 * 1byte = 4GB 這麼多。</p>
+<p>但是作業系統會保留一些位址、預留一些記憶體空間以維持系統運作，所以使用者實際可以運用的記憶體其實不到4GB。</p>
+<p>當記憶體沒有插到4GB的時候，作業系統利用一種叫做virtual memory的技術，以硬碟空間補足記憶體不足4GB的部份。</p>
+<p>位址是連續不斷的，我們寫程式也都直接假設位址對應到的記憶體空間是連續不斷的，然而實際上並不是連續的。作業系統運用一種叫做paging的技術，藉由page table，讓記憶體看起來是連續的。</p>
+<p class="t">Recursion</p>
+<p>在函數內部呼叫原本的函數，叫做「遞迴」。遞迴與迴圈一樣，將一件事情重複很多次，每次都改變一點點。遞迴與迴圈一樣，必須設定起始條件、結束條件、改變量，以避免無窮遞迴。</p>
+<p>範例：階乘。1乘以2乘以3……乘以n。</p>
+<textarea>
+unsigned int factorial(unsigned int n)
+{
+	int value = 1;
+	// 起始條件、結束條件、改變量
+	for (unsigned int i = n; i >= 1; --i)
+		value *= i;
+	return value;
+}
+</textarea>
+<textarea>
+unsigned int factorial(unsigned int n)	// 起始條件
+{
+	if (n == 1) return 1;			// 結束條件
+	return n * factorial(n - 1);	// 改變量
+}
+</textarea>
+<textarea>
+unsigned int factorial(unsigned int n)
+{
+	return n == 0 ? 1 : n * factorial(n - 1);
+}
+</textarea>
+<p>範例：兔子數列。0 1 1 2 3 5 8……。遞迴可以輕易地樹狀分枝。迴圈必須輔以堆疊，才能樹狀分枝，非常麻煩。</p>
+<textarea>
+unsigned int fibonacci(unsigned int n)
+{
+	int value = 0;
+
+	stack<unsigned int> s;
+	s.push(n);
+
+	// 運用兔子數列的特性，可以精簡許多細節，不過仍然很麻煩。
+	while (!stack.empty())
+	{
+		int n = s.top(); s.pop();
+
+		if (n == 0)
+			value += 0;
+		else if (n == 1)
+			value += 1;
+		else
+		{
+			s.push(n);
+			s.push(n-1);
+		}
+	}
+	return value;
+}
+</textarea>
+<textarea>
+unsigned int fibonacci(unsigned int n)
+{
+	if (n == 0) return 0;
+	if (n == 1) return 1;
+	// 輕鬆建立兩個分枝
+	return fibonacci(n - 1) + fibonacci(n - 2) ;
+}
+</textarea>
+<p>範例：數獨（sudoku）。嘗試所有可能性，分枝是數字1到9。呼叫函數之後，重新填入0，使盤面往前還原一步，讓其他分枝得以順利地填寫數字！另外可在遞迴途中隨時檢查盤面，可以避免節外生枝；不過為了省事，這裡沒有這麼做。</p>
+<textarea>
+int array[9][9] =
+{
+	0, 3, 2, 8, 9, 7, 0, 0, 0,
+	0, 0, 5, 0, 0, 0, 0, 3, 0,
+	3, 0, 7, 0, 0, 0, 0, 4, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 2, 0, 0, 0, 0, 1, 0, 9,
+	0, 0, 0, 2, 0, 1, 0, 9, 0,
+	0, 1, 0, 0, 0, 0, 4, 0, 0,
+	0, 0, 0, 4, 7, 5, 2, 6, 0
+}
+
+void print()
+{
+	for (int i=0; i<9; ++i)
+	{
+		for (int j=0; j<9; ++j)
+			cout << array[i][j];
+		cout << '\n';
+	}
+}
+
+bool ok()
+{
+	int count_row      [9][9+1] = {};
+	int count_column   [9][9+1] = {};
+	int count_square[3][3][9+1] = {};
+
+	for (int i=0; i<9; ++i)
+		for (int j=0; j<9; ++j)
+		{
+			int n = array[i][j];
+			count_row          [i][n]++;
+			count_column       [j][n]++;
+			count_square[i/3][j/3][n]++;
+		}
+
+	for (int i=0; i<9; ++i)
+		for (int n=1; n<=9; ++n)
+			if (count_row[i][n] != 1)
+				return false;
+
+	for (int j=0; j<9; ++j)
+		for (int n=1; n<=9; ++n)
+			if (count_column[j][n] != 1)
+				return false;
+
+	for (int i=0; i<3; ++i)
+		for (int j=0; j<3; ++j)
+			for (int n=1; n<=9; ++n)
+				if (count_square[i][j][n] != 1)
+					return false;
+}
+
+void fill(int i, int j)
+{
+	if (j == 10) {i++; j = 0;}
+	if (i == 10) {if (ok()) print(); return;}
+
+	if (array[i][j] != 0)
+		fill(i, j + 1);
+	else
+		for (int n=1; n<=9; ++n)
+		{
+			array[i][j] = n;
+			fill(i, j + 1);
+			array[i][j] = 0;	// 收拾！還原！
+		}
+}
+
+void sudoku()
+{
+	fill(0, 0);
+}
+</textarea>
+<p class="e">UVa 110 177 183 839</p>
+<p class="t">Metaprogramming</p>
+<p>設計一支程式來製造程式碼，令該程式碼充分運用程式語言自身擁有的能力，輕鬆地、更有效率地完成更多事情。</p>
+<p>範例：四則運算式。</p>
+<pre>
+5 + 8 * (2 - 3) + 7 * -6 / (2 - 1) + 1
+</pre>
+<p>這是一個經典的問題，大家應該不陌生。身經百戰的演算法設計高手，必然不假思索說出：stack，把所有符號依序放入stack，依照運算符號的優先次序push和pop，一下子就算完了。聽來簡單，但實作起來還是頗麻煩。</p>
+<p>這裡要介紹的是更輕鬆、更強悍的方法：寫程式製造一支會進行四則運算的程式。大家都知道C/C++的語法當中，就有四則運算的語法了。現在來設計一支程式，製作出四則運算的程式碼吧！</p>
+<textarea>
+void arithmetic()
+{
+	// 輸入四則運算式
+	string s;
+	cin >> s;
+	
+	// 製作程式碼
+	ofstream fout("temp.cpp");
+	fout << "#include <iostream>\n";
+	fout << "int main()\n";
+	fout << "{\n"
+	fout << "	std::cout << (" << s << ") << endl;\n";
+	fout << "	return 0;\n";
+	fout << "}\n";
+	fout.close();
+}
+</textarea>
+<p>如果輸入方才的四則運算式，就會產生如下程式碼，檔名為temp.cpp。</p>
+<textarea>
+#include <iostream>
+int main()
+{
+	std::cout << (5 + 8 * (2 - 3) + 7 * -6 / (2 - 1) + 1) << endl;
+	return 0;
+}
+</textarea>
+<p>然後編譯temp.cpp、執行一下，就有答案了。甚至可以把編譯、執行的指令，統統寫進程式碼當中：</p>
+<textarea>
+void arithmetic()
+{
+	// 輸入四則運算式
+	......
+	
+	// 製作程式碼
+	......
+	
+	// 編譯和執行（在Linux底下）
+	system("g++ temp.cpp -o temp.out");
+	system("./temp.out");
+	
+	// 刪除暫存檔案
+	system("rm temp.out");
+	system("rm temp.cpp");
+}
+</textarea>
+<p>範例：quine。一支程式，其功能是輸出本身程式碼。</p>
+<textarea>
+#include <cstdio>
+char s[]="#include <cstdio>%cchar s[]=%c%s%c;%cint main(){printf(s,10,34,s,34,10,10);retrun 0;}%c";
+int main(){printf(s,10,34,s,34,10,10);return 0;}
+
+</textarea>
+<p>範例：template metaprogramming。C有個功能叫macro，可以代換程式碼。C++有個更厲害的功能叫template，可以代換並且遞迴展開程式碼。運用template，編譯時期即可計算答案，令答案變成程式碼的一部分；執行時期不必花時間計算，直接印出答案！不過這是個怪招，平常沒人這樣做，大家當作娛樂看看就好。</p>
+<textarea>
+// 正常的寫法
+// factorial(0) 得到 1
+// factorial(4) 得到 24
+unsigned int factorial(unsigned int n)
+{
+	return n == 0 ? 1 : n * factorial(n - 1); 
+}
+</textarea>
+<textarea>
+// 奇葩的寫法
+template <unsigned int n>
+struct factorial
+{
+	static const unsigned int value = n * factorial<n - 1>::value;
+};
+
+template <>
+struct factorial<0>
+{
+	static const unsigned int value = 1;
+};
+
+// factorial<0>::value 得到 1
+// factorial<4>::value 得到 24
+</textarea>
+
+</div></div><div class="a"><div class="h">
+<p class="b">Programming（Under Construction!）</p>
+</div><div class="c">
+<p class="t">System Programming</p>
+
+<p class="t">Embedded System Programming</p>
+<pre>
+矽/半導體
+http://zhe09.pixnet.net/blog/post/51558978
+
+IC (在上面畫電路，這領域叫做EDA，軟體叫CAD)
+http://www.yzuda.org/Useful_Links/recruit/2011/
+http://icdc.ee.ccu.edu.tw/2015/index2.php?page=OldExams
+http://www.csie.ntu.edu.tw/~hungsh/CA/IC_design_industry.ppt
+
+SoC (很多不同功能IC設計在一起，製程一樣)
+http://people.cs.nctu.edu.tw/~tfchen/TW-SoC.pdf
+
+SiP (很多不同功能IC拼在一起)
+http://technews.tw/2015/11/29/apple-sip/
+
+PCB (很多上面的東西一起釘在這板子上)
+http://programmermagazine.github.io/y201410/htm/video1.html
+http://wwwsixman.blogspot.tw/2012/08/iicpcb.html
+http://www.researchmfg.com/2015/10/pcb-production-process/
+
+CPU (微處理器，一種IC)
+https://www.youtube.com/watch?v=qm67wbB5GmI
+https://www.youtube.com/watch?v=wOuYLq6vfLE
+
+ARM (微處理器規格書，32位元RISC處理器市占90%)
+http://www.esdesigner.com.tw/esd/article/arm-1.pdf
+
+ARM處理器出貨量，占有95%的智慧型手機、90%的硬碟機、40%的數位電視和機上盒、15%
+的微控制器、和20%的移動電腦
+
+樹梅派用的還是很舊的ARM架構
+
+嵌入式系統
+http://www.barrgroup.com/Embedded-Systems/Books
+http://shop.oreilly.com/product/0636920017776.do
+
+ARM
+http://www.davespace.co.uk/arm/introduction-to-arm/books.html
+
+驅動程式
+https://lwn.net/Kernel/LDD3/
+http://elinux.org/images/a/a3/Elce2013-petazzoni-devicetree-for-dummies.pdf
+
+PCB
+Printed Circuit Boards: Design, Fabrication, Assembly and Testing
+
+WinCE和Linux BSP   programmable SoC
+</pre>
+<pre>
+1. MTK設計晶片
+
+  (1) 以verilog語言，去設計電路圖。
+  (2) 繞線。
+
+2. MTK用一堆晶片兜出SoC，最後叫別人做。
+
+  (1) 台積電做出矽圓，然後把晶片重複地印在矽圓上。
+  (2) 測封廠把矽圓切成晶片，然後包裝成晶片。
+　(3) 某個廠把晶片堆疊起來，弄成一個SoC/SiP。
+  (4) PCB廠把晶片/SoC黏上去，弄成開發板，
+      並且設計compiler和linker，讓人家可以用C語言開發。
+
+3. 該SoC甚至可以做成ARM/x86架構，符合計算機架構，並且在上面安裝作業系統。
+   (Broadcom 生產的 http://www.farnell.com/datasheets/1521578.pdf)
+
+3-1. 某公司去買開發板回來，上面附帶
+
+  (1) 各腳位功能規格書，告訴你餵什麼訊號會得什麼結果。
+  (2) 組合語言/C語言的組譯器。
+     (a) 用C語言的pointer去得到腳位，用assign operator去餵訊號。
+     (b) 用組合語言的指令去執行一些比較厲害的功能。
+         (通常已有現成的C的範例程式碼，包成function，直接呼叫就行。)
+     (c) 寫好中斷表，讓硬體reset就執行自訂程式。
+　　 (d) 組譯之後燒在開發板上的ROM裡面，硬體插電後，電壓正確就會執行程式。
+  (3) 偶爾要用示波器去量腳位，看看波形是否符合規格書。判斷硬體是否為瑕疵品。
+
+　可以做出
+
+  (1) 簡單的控制程式：例如LED燈亮起來。
+  (2) 甚至寫成RTOS即時作業系統(考慮元件反應時間、中斷)。
+      不過這跟個人電腦的「作業系統」完全沒關係，只是名字很像而已。
+
+3-2. 某公司去買比較厲害的開發板回來
+
+  (1) 可以裝在計算機上（通常是USB），並且提供BSP，讓Linux和WinCE可以寫driver。
+  (2) 寫driver，符合某種心照不宣的規格，讓寫應用程式/寫函式庫的人可以呼叫。
+      通常要自己控制記憶體、紀錄硬體資料等等。
+3-3. 某公司去買超級厲害的開發板回來 (例如Arduino)
+
+  (1) 裡面有作業系統，並且提供IDE，可以直接用電腦寫程式。
+
+
+－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－
+
+我們家公司其實就是在跟廣達合作，之前講的要決定要哪些晶片和模組，
+都是跟這些公司談價格，他們會給 total package, 不過我們家是有
+前 HTC 高層幫忙，他有認識這些公司的人（簡單來說就是有人脈），
+所以可以拿到一些比較好的價格，
+
+當然選 SOC，不同產品有不同的 IC 設計廠可以選擇，
+安控產業就是海思安霸，
+手機廠分高中低階就是 Q公司，聯發科，展訊，
+還有一些比較鳥的 IC design 廠像是晨星
+可以選擇（聽說他們現在還在賣兩年前 design 出來的晶片）,
+</pre>
+<p class="t">Application Programming</p>
+
+<p class="t">Web Programming</p>
+<p>網頁程式設計。網路上習慣分成前端（使用者介面）和後端（伺服器程式），不過這個分類非常詭異就是了。</p>
+<p>網頁是民眾看得到摸得著的東西，容易宣揚價值，容易做大市場。因此從事網頁設計容易搞到錢。因此很多人都想來淘金。再加上幾乎家家戶戶都有電腦，學習門檻大幅下降。因此科普書籍特別多、網路文章特別多、工具特別多。甚至台灣有一些人沒有專科學歷，靠著自學、接案、傳道而出名，例如沈芯菱、王景弘。</p>
+<pre>
+在使用者的電腦上面執行。
+HTML：網頁的資料內容。
+CSS：網頁的排版樣式。
+JavaScript：控制瀏覽器（例如IE、Chrome、Firefox、Safari）的行為。
+　　　　　　當然也能控制網頁內容。
+
+在伺服器上面執行。
+PHP、JSP、ASP：生成HTML網頁的程式。
+SQL：查詢資料庫。知名軟體MySQL、Microsoft SQL Server、Oracle SQL。
+
+伺服器的準備。
+Web Server：讓大家能連線到你的電腦，存取網頁。
+　　　　　　知名軟體Apache HTTP Server。Tomcat、MS IIS。
+Template Engine：懶人包。灌好就一個網站，然後自己再去改改設定。
+</pre>
+<p>學習資源</p>
+<p>http://www.w3schools.com/</p>
+<p class="t">Knowledge-based Programming</p>
+<p>新世代的程式設計。運用龐大資料庫，編寫程式，隨時處理觸目所及的資訊。演算法終於可以發揮威力了。</p>
+<p>https://www.zhihu.com/question/27834147</p>
+</div></div><script src="h.js"></script></body></html>

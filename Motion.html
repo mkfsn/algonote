@@ -1,0 +1,786 @@
+﻿<html lang="zh-TW"><head><meta charset="UTF-8" /><link rel="stylesheet" href="style.css" />
+<title>演算法筆記 - Motion</title></head><body>
+<div class="a"><div class="h">
+<p class="b">Motion（Under Construction!）</p>
+</div><div class="c">
+<p class="t">Motion</p>
+<p>動作。讓虛擬模型產生動作，讓實體機械產生動作。</p>
+<div class="z"><!--<iframe src="http://www.youtube.com/embed/MxvA-m0cpAw"></iframe>--></div>
+<p class="t">Mechanics</p>
+<p>力學。物理學最根本的學問，討論質量、力、距離、時間之間的關係。</p>
+<pre>
+http://www.apress.com/9781430263371
+http://www.cs.cornell.edu/courses/cs6650/2011sp/
+http://www.cs.cmu.edu/~scoros/cs15467-s16/index.html
+http://www.cs.cmu.edu/~scoros/cs15869-s15/index.html
+</pre>
+<style>canvas {border: 1px solid black;}</style>
+<div class="i" style="margin-bottom: 5px">
+<canvas id="bounce" width="200" height="200"></canvas>
+<canvas id="upthrust" width="200" height="200"></canvas>
+<canvas id="bubble" width="200" height="200"></canvas>
+</div><div class="i">
+<canvas id="spring" width="200" height="200"></canvas>
+<canvas id="gravity" width="200" height="200"></canvas>
+<canvas id="attract" width="200" height="200"></canvas>
+</div>
+<script src="Vector2D.js"></script>
+<script>
+var bounce = function() {
+	var canvas = document.getElementById('bounce');
+	var ctx    = canvas.getContext('2d');
+
+	var g = 0.5;
+	var x = 50;
+	var y = 50;
+	var vx = 2;
+	var vy = 0;
+	var radius = 20;
+
+	draw();
+
+	var id = 0;
+	canvas.tabIndex = 1;
+	canvas.onblur = function(){clearInterval(id); id = 0;};
+	canvas.onmousedown = function(){
+		if (!id) {id = setInterval(update, 1000/60); return;}	// 60 fps
+		vx = 2;
+		vy = 15;
+	};
+
+	function update() {
+		move();
+		draw();
+	}
+
+	function move() {
+		vy += g;
+		x += vx;
+		y += vy;
+
+		// if hit ground, then bounce
+		if (y > canvas.height - radius) {
+			y = canvas.height - radius;
+			vy *= -0.8; if (Math.abs(vy) < 0.0001) vy = 0;
+			vx *= 0.97; if (Math.abs(vx) < 0.0001) vx = 0;
+		}
+		// if out screen, then wrap around
+		if (x > canvas.width + radius) {
+			x = -radius;
+		}
+	}
+
+	function draw() {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		grd = ctx.createRadialGradient(x+4, y-4, 8, x+4, y-4, 24);
+		grd.addColorStop(0, '#c8c8ff');
+		grd.addColorStop(1, '#0000ff');
+		ctx.fillStyle = grd;
+		ctx.beginPath();
+		ctx.arc(x, y, radius, 0, 2*Math.PI, true);
+		ctx.closePath();
+		ctx.fill();
+	};
+}();
+</script>
+<script>
+var upthrust = function() {
+	var canvas = document.getElementById('upthrust');
+	var ctx    = canvas.getContext('2d'); 
+
+	var g = 0.5;
+	var x = 50;
+	var y = 50;
+	var vx = 4;
+	var vy = -2;
+	var ax, ay;
+	var fx, fy;
+	// wall
+	var vfac = -0.8;
+	// ball
+	var radius = 20;
+	var volume = 1;
+	var mass = 1;
+	// water
+	var k = 0.01;
+	var rho = 1.5;
+	var water = 100;
+
+	draw();
+
+	var id = 0;
+	canvas.tabIndex = 1;
+	canvas.style.position = "relative";
+	canvas.onblur = function(){clearInterval(id); id = 0;};
+	canvas.onmousedown = function(e){
+		if (!id) {id = setInterval(update, 1000/60); return;}	// 60 fps
+		vx = 3 * (e.layerX - x > 0 ? -1 : +1);
+		vy = -10;
+	};
+
+	function update() {
+		force(); move(); draw();
+	}
+
+	function force(){
+		var dr = (y - water) / radius;
+		var ratio; // volume fraction in water
+		if      (dr <= -1) ratio = 0; // outside water
+		else if (dr >= +1) ratio = 1; // inside water
+//		else               ratio = 0.5 + 0.5*dr; // cuboid
+		else               ratio = 0.5 + 0.25*dr*(3-dr*dr); // sphere
+
+		var gravity  = mass * g;
+		var upthrust = -rho * volume * ratio * g;
+		var drag     = -ratio * k * Math.sqrt(vx*vx + vy*vy);
+		fx = drag * vx;
+		fy = gravity + upthrust + drag * vy;
+	}
+
+	function move(){
+		ax = fx / mass; vx += ax; x += vx;
+		ay = fy / mass; vy += ay; y += vy;
+
+		// bouncing off walls
+		if (x < radius) {
+			x = radius;
+			vx *= vfac;
+		}
+		if (x > canvas.width - radius) {
+			x = canvas.width - radius;
+			vx *= vfac;
+		}
+		if (y < -radius)
+			y = -radius;
+	}
+
+	function draw() {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		// ball
+		grd = ctx.createRadialGradient(x+4, y-4, 8, x+4, y-4, 24);
+		grd.addColorStop(0, '#c8c8ff');
+		grd.addColorStop(1, '#0000ff');
+		ctx.fillStyle = grd;
+		ctx.beginPath();
+		ctx.arc(x, y, radius, 0, 2*Math.PI, true);
+		ctx.closePath();
+		ctx.fill();
+		// water
+		ctx.fillStyle = "rgba(0,255,255,0.5)";
+		ctx.fillRect(0,water,canvas.width,canvas.height);
+	}
+}();
+</script>
+<script>
+var bubble = function() {
+	var canvas = document.getElementById('bubble');
+	var ctx = canvas.getContext('2d'); 
+
+	var f;
+	var g = 0.5;
+	// air
+	var rho = 1;
+	// bubble
+	var density = 0.99;
+	var u = 0.99;
+	// wind
+	var kfac = 0.01;
+	var windvel = new Vector2D(1,0);
+
+	var balls = new Array(10);
+	for (var i=0; i<balls.length; i++) {
+		var radius  = 5 + Math.random() * 15;
+		var volume  = Math.pow(radius,3) * Math.PI * 4 / 3;
+		var mass    = density * volume;
+		balls[i]       = new Ball(radius,'rgba(128,200,255,0.5)',mass,true);
+		balls[i].pos2D = new Vector2D(Math.random()*canvas.width, Math.random()*canvas.height);
+		balls[i].vel2D = new Vector2D(0,0);
+	}
+
+	draw();
+
+	var id = 0;
+	canvas.tabIndex = 1;
+	canvas.style.position = "relative";
+	canvas.onblur = function(){clearInterval(id); id = 0;};
+	canvas.onmousedown = function(e){
+		if (!id) {id = setInterval(update, 1000/60); return;}	// 60 fps
+		for (var i=0; i<balls.length; i++){
+			var ball = balls[i];
+			var dx = e.layerX - ball.x;
+			var dy = e.layerY - ball.y;
+			var d  = Math.sqrt(dx*dx+dy*dy) + 1;
+			var v  = Math.min(5, 10/d);
+			ball.vx += v * (dx < 0 ? +1 : -1);
+			ball.vy += v * (dy < 0 ? +1 : -1);
+		}
+	};
+
+	function update(){
+		for (var i=0; i<balls.length; i++) {
+			force(balls[i]);
+			move(balls[i]);
+		}
+		draw();
+	}
+
+	function force(ball) {
+		var volume   = ball.mass / density;
+		var surface  = Math.PI * ball.radius * ball.radius * 4;
+
+		var gravity  = new Vector2D(0, ball.mass*g);
+		var upthrust = new Vector2D(0, -rho*volume*g);
+		var wind     = windvel.subtract(ball.vel2D);
+		var drag     = wind.multiply(surface * wind.length() * kfac);
+		f = Vector2D.add([gravity, upthrust, drag]);
+	}
+
+	function move(ball){
+		var a = f.multiply(1/ball.mass);
+		ball.vel2D = ball.vel2D.add(a);
+		ball.vel2D = ball.vel2D.multiply(u);
+		ball.pos2D = ball.pos2D.add(ball.vel2D);
+		// wrap around
+		var maxr = 20;
+		if (ball.x > canvas.width + maxr) ball.x = -maxr;
+		else if (ball.x < -maxr) ball.x = canvas.width + maxr;
+		if (ball.y > canvas.height + maxr) ball.y = -maxr;
+		else if (ball.y < -maxr) ball.y = canvas.height + maxr;
+	}
+
+	function draw() {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		for (var i=0; i<balls.length; i++)
+			balls[i].draw(ctx);
+	}
+}();
+</script>
+<script>
+var spring = function() {
+	var canvas = document.getElementById('spring');
+	var ctx = canvas.getContext('2d'); 
+
+	var f;
+	var g = 100;
+	var kDamping = 0.5;
+	var kSpring = 10;
+	var springLength = 15;
+
+	var support   = new Ball(2,'#000000');
+	support.pos2D = new Vector2D(canvas.width/2, 20);
+
+	var balls = new Array(3);
+	for (var i=0; i<balls.length; i++) {
+		balls[i]       = new Ball(10,'#0000ff',1,true);
+		balls[i].pos2D = new Vector2D(canvas.width/2, 80+30*i);
+		balls[i].vel2D = new Vector2D(0, 0);
+	}
+
+	draw();
+
+	var id = 0;
+	canvas.tabIndex = 1;
+	canvas.style.position = "relative";
+	canvas.onblur = function(){cancelAnimationFrame(id); id = 0;};
+	canvas.onmousedown = function(){if(!id)id = requestAnimationFrame(animate, canvas);};
+
+	var isMouseDown = false;
+	canvas.addEventListener("mousedown", function(e) {
+		isMouseDown = true;
+		support.x = e.layerX;
+		support.y = e.layerY;
+	});
+	canvas.onmouseup   = function() {
+		isMouseDown = false;
+	};
+	canvas.onmousemove = function(e) {
+		if (isMouseDown) {
+			support.x = e.layerX;
+			support.y = e.layerY;
+		}
+	};
+
+	var t0, t1, t, dt;
+	function animate() {
+		t0 = new Date().getTime();
+		t = 0;
+		frame();
+	}
+	function frame() {
+		id = requestAnimationFrame(frame, canvas);
+		t1 = new Date().getTime();
+		dt = 0.001*(t1-t0);
+		t0 = t1;
+		if (dt>0.2) dt=0;
+		t += dt;
+		update();
+	}
+
+	function update(){
+		for (var i=0; i<balls.length; i++) {
+			force(balls[i],i);
+			move(balls[i]);
+		}
+		// auto move support
+//		support.x = 100 * Math.sin(1.0*t) + 0.5*canvas.width;
+		draw();
+	}
+
+	function force(obj,num){
+		var centerPrev;
+		if (num > 0)              centerPrev = balls[num-1].pos2D;
+		else                      centerPrev = support.pos2D;
+		var centerNext;
+		if (num < balls.length-1) centerNext = balls[num+1].pos2D;
+		else                      centerNext = obj.pos2D;
+
+		var gravity = new Vector2D(0, obj.mass * g);
+		var damping = obj.vel2D.multiply(-kDamping);
+		var displPrev = obj.pos2D.subtract(centerPrev);
+		var displNext = obj.pos2D.subtract(centerNext);
+		var extensionPrev = displPrev.subtract(displPrev.unit().multiply(springLength));
+		var extensionNext = displNext.subtract(displNext.unit().multiply(springLength));
+		var restoringPrev = extensionPrev.multiply(-kSpring);
+		var restoringNext = extensionNext.multiply(-kSpring);
+		f = Vector2D.add([gravity, damping, restoringPrev, restoringNext]);    
+	}
+
+	function move(ball) {
+		a = f.multiply(1/ball.mass);
+		ball.vel2D = ball.vel2D.addScaled(a,dt);
+		ball.pos2D = ball.pos2D.addScaled(ball.vel2D,dt);
+	}
+
+	function draw(){
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		// support
+		support.draw(ctx);
+		// spring
+		ctx.save();
+		ctx.strokeStyle = '#999999';
+		ctx.lineWidth = 2;
+		ctx.moveTo(support.x,support.y);
+		for (var i=0; i<balls.length; i++)
+			ctx.lineTo(balls[i].x, balls[i].y);
+		ctx.stroke();
+		ctx.restore();
+		// ball
+		for (var i=0; i<balls.length; i++)
+			balls[i].draw(ctx);
+	}
+}();
+</script>
+<script>
+var gravity = function() {
+	var canvas = document.getElementById('gravity');
+	var ctx = canvas.getContext('2d'); 
+
+	var m = 1; // particles' mass
+	var M = 1; // center's mass
+	var G = 1;
+	var k = -G*M*m;
+	var n = 1;
+
+	var center = new Ball(20,'#ff0000',M);
+	center.pos2D = new Vector2D(canvas.width/2, canvas.height/2);
+
+	var particles = new Array(50);
+	for (var i=0; i<particles.length; i++) {
+		particles[i]       = new Ball(4,'#0000ff',m);
+		particles[i].pos2D = new Vector2D(Math.random()*canvas.width, Math.random()*canvas.height);
+		particles[i].vel2D = new Vector2D((Math.random()-0.5)*50, (Math.random()-0.5)*50);
+		particles[i].draw(ctx);
+	}
+
+	var id = 0;
+	canvas.tabIndex = 1;
+	canvas.style.position = "relative";
+	canvas.onblur = function(){cancelAnimationFrame(id); id = 0;};
+	canvas.onmousedown = function(){if(!id)id = requestAnimationFrame(animate, canvas);};
+
+	var t0, t1, dt;
+	function animate() {
+		t0 = new Date().getTime();
+		frame();
+	}
+	function frame() {
+		id = requestAnimationFrame(frame,canvas);
+		t1 = new Date().getTime();
+		dt = 0.001*(t1-t0);
+		t0 = t1;
+		if (dt>0.2) dt=0;
+		update();
+	}
+
+	function update() {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		for (var i=0; i<particles.length; i++) {
+			var particle = particles[i];
+			var r = particle.pos2D.subtract(center.pos2D);
+			f = r.multiply(k * Math.pow(r.length(), n-1));
+			a = f.multiply(1/particle.mass);
+			particle.vel2D = particle.vel2D.addScaled(a,dt);
+			particle.pos2D = particle.pos2D.addScaled(particle.vel2D,dt);
+			particle.draw(ctx);
+		}
+	}
+}();
+</script>
+<script>
+var attract = function() {
+	var canvas = document.getElementById('attract');
+	var ctx = canvas.getContext('2d'); 
+
+	var attractors = new Array(3);
+	function reset() {
+		for (var i=0; i<attractors.length; i++){
+			var radius = 20*(Math.random()+0.5);
+			var charge = (Math.random()-0.5)*1000000;
+			if      (charge < 0) color = "rgba(0,0,255,0.3)";
+			else if (charge > 0) color = "rgba(255,0,0,0.3)";
+			else                 color = "rgba(0,0,0,0.3)";
+			var x = Math.random() * canvas.width/2  + canvas.width/4;
+			var y = Math.random() * canvas.height/2 + canvas.height/4;
+
+			attractors[i]        = new Ball(radius,color,1);
+			attractors[i].pos2D  = new Vector2D(x,y);
+			attractors[i].charge = charge;
+		}
+	}
+	reset();
+
+	var ball = new Ball(5,'#0000ff',1,true);
+	ball.pos2D = new Vector2D(Math.random()*canvas.width,Math.random()*canvas.height);
+	ball.vel2D = new Vector2D(0,0);
+	ball.charge = 1;
+
+	draw();
+
+	var id = 0;
+	canvas.tabIndex = 1;
+	canvas.style.position = "relative";
+	canvas.onblur = function(){cancelAnimationFrame(id); id = 0;};
+	canvas.onmousedown = function(){if(!id)id = requestAnimationFrame(animate, canvas);};
+	canvas.ondblclick = reset;
+
+	canvas.addEventListener("mousedown", function(e) {
+		ball.x = e.layerX;
+		ball.y = e.layerY;
+		ball.vx = 0;
+		ball.vy = 0;
+	});
+
+	var t0, t1, dt;
+	function animate() {
+		t0 = new Date().getTime();
+		frame();
+	}
+	function frame() {
+		id = requestAnimationFrame(frame,canvas);
+		t1 = new Date().getTime();
+		dt = 0.001*(t1-t0);
+		t0 = t1;
+		if (dt>0.2) dt=0;
+		update();
+	}
+
+	function update(){
+		force(); move(); draw();
+	}
+
+	function force(){
+		f = new Vector2D(0,0);
+		for (var i=0; i<attractors.length; i++){
+			var attractor = attractors[i];
+			var dist = ball.pos2D.subtract(attractor.pos2D);
+			var k = 3;
+			var q1 = attractor.charge;
+			var q2 = ball.charge;
+			var r  = dist.length();
+			r = Math.max(15, r);
+			var electric = dist.multiply(k*q1*q2/(r*r*r));
+			f.incrementBy(electric);
+		}
+	}
+
+	function move(){
+		a = f.multiply(1/ball.mass);
+		ball.vel2D = ball.vel2D.addScaled(a,dt);
+		ball.pos2D = ball.pos2D.addScaled(ball.vel2D,dt);
+		if (ball.x < 0)             {ball.x = 0;             ball.vx *= -0.9;}
+		if (ball.x > canvas.width)  {ball.x = canvas.width;  ball.vx *= -0.9;}
+		if (ball.y < 0)             {ball.y = 0;             ball.vy *= -0.9;}
+		if (ball.y > canvas.height) {ball.y = canvas.height; ball.vy *= -0.9;}
+	}
+
+	function draw() {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		for (var i=0; i<attractors.length; i++)
+			attractors[i].draw(ctx);
+		ball.draw(ctx);
+	}
+}();
+</script>
+<p class="t">Mechanism</p>
+<p>機制。拼湊大量物體，物體之間互相連動。</p>
+<pre>
+n-body       https://en.wikipedia.org/wiki/N-body_simulation
+cloth        http://www.cs.cornell.edu/projects/YarnCloth/
+hair         http://www.andyselle.com/papers/9/
+soft object  http://www.alecrivers.com/fastlsm/
+water wave   http://www.cemyuksel.com/research/waveparticles/
+</pre>
+<canvas id="collision" width="200" height="200"></canvas>
+<script>
+var collision = function() {
+	var canvas = document.getElementById("collision");
+	var ctx = canvas.getContext("2d");
+
+	var id;
+	canvas.tabIndex = 1;
+	canvas.onblur  = function(){clearInterval(id);};
+	canvas.onfocus = function(){init(); id = setInterval(draw, 20);};
+
+	var X = canvas.width, Y = canvas.height;
+	var N = 5;
+	var x = new Array(), y = new Array(), r = new Array();
+	var mx = new Array(), my = new Array(), mr = new Array();
+	var fc = new Array(), sc = new Array();
+
+	function init() {
+		for (var i=0; i<N; ++i) {
+			r[i] = 15;
+			x[i] = Math.floor(Math.random() * (X - 2*r[i]));
+			y[i] = Math.floor(Math.random() * (Y - 2*r[i]));
+			mx[i] = Math.ceil(Math.random() * 3);
+			my[i] = Math.ceil(Math.random() * 3);
+			mr[i] = 0;
+		}
+	}
+
+	function move(i) {
+		x[i] += mx[i];
+		if (x[i] < 0 + r[i]) {x[i] = 2*(0+r[i]) - x[i]; mx[i] = -mx[i];}
+		if (x[i] > X - r[i]) {x[i] = 2*(X-r[i]) - x[i]; mx[i] = -mx[i];}
+		y[i] += my[i];
+		if (y[i] < 0 + r[i]) {y[i] = 2*(0+r[i]) - y[i]; my[i] = -my[i];}
+		if (y[i] > Y - r[i]) {y[i] = 2*(Y-r[i]) - y[i]; my[i] = -my[i];}
+	}
+
+	function hit(i, j) {
+		var dx = x[i] - x[j], dy = y[i] - y[j], dr = r[i] + r[j];
+		return dx*dx + dy*dy <= dr*dr;
+	}
+
+	function reflect(i) {
+		mx[i] = -mx[i];
+		my[i] = -my[i];
+	}
+
+	function draw() {
+		for (var i=0; i<N; ++i)
+			move(i);
+
+		for (var i=0; i<N; ++i)
+			for (var j=i+1; j<N; ++j)
+				if (hit(i, j)) {
+					reflect(i);
+					reflect(j);
+				}
+
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.fillStyle = "rgba(255,255,0,0.5)";
+		ctx.strokeStyle = "red"; 
+		for (var i=0; i<N; ++i) {
+			ctx.beginPath();
+			ctx.arc(x[i], y[i], r[i], 0, 2.0 * Math.PI);
+			ctx.fill();
+			ctx.stroke();
+		}
+	}
+}();
+</script>
+<div class="z"><!--<iframe src="http://www.youtube.com/embed/iHzzSao6ypE"></iframe>--></div>
+<div class="z"><!--<iframe src="http://www.youtube.com/embed/t2K7EoNgozg"></iframe>--></div>
+<div class="z"><!--<iframe src="http://www.youtube.com/embed/CCIwiC37kks"></iframe>--></div>
+<div class="z"><!--<iframe src="http://www.youtube.com/embed/XtYYhaM-5rQ"></iframe>--></div>
+<p class="e">UVa 11574</p>
+<p class="t">Locomotion</p>
+<p>力與姿態的改變。</p>
+<p>比如走路姿態。無論是走路、跑步、爬行，四肢的循環時間總是一致（除非跛腳），而相位則不一致。特定的走路動作，有著特定的相位差。</p>
+<p><a href="http://graphics.ucsd.edu/courses/cse169_w15/slides/CSE169_13.pdf">http://graphics.ucsd.edu/courses/cse169_w15/slides/CSE169_13.pdf</a></p>
+<canvas id="gait" width="200" height="200"></canvas>
+<script>
+var gait = function() {
+	var imgH = new Image(); imgH.src = "material/cathead.png";
+	var imgF = new Image(); imgF.src = "material/catfoot.png";
+
+	var canvas = document.getElementById('gait');
+	var ctx    = canvas.getContext('2d');
+//	ctx.translate(0, canvas.height);
+//	ctx.scale(1, -1);
+	ctx.lineWidth = 2;
+	ctx.strokeStyle = "green";
+	ctx.font = "bold 16px Arial";
+	canvas.tabIndex = 1;
+
+	var leg = new Array(4);
+	leg[0] = {x: 70,  y: 140, phase: 5};
+	leg[1] = {x: 80,  y: 140, phase: 0};
+	leg[2] = {x: 135, y: 140, phase: 0};
+	leg[3] = {x: 145, y: 140, phase: 5};
+	var seq = [1,0,2,3];	// paint sequence
+
+	var tick = 0, speed = 10, loop = 100;
+	canvas.onkeydown = function(event) {
+		event = event || window.event;
+		event.preventDefault();
+		switch(event.which) {
+		case 49: case 50: case 51: case 52://1234
+			var i = event.which - 49;
+			if (++leg[i].phase >= 10) leg[i].phase = 0;
+			break;
+		case 83://space
+			if (++speed >= 11) speed = 1;
+			break;
+		}
+	};
+
+	var id;
+	canvas.onblur  = function(){clearInterval(id); id = 0; menu();};
+	canvas.onfocus = function(){if (!id) id = setInterval(draw, 20);}
+	imgH.complete && imgF.complete ? menu() : imgF.addEventListener('load', menu);
+
+	function menu() {
+		draw();
+		ctx.save();
+		ctx.font = "32pt Arial";
+		ctx.textBaseline = "middle";
+		ctx.textAlign = "center";
+		ctx.fillStyle = "rgb(0,127,0)";
+		ctx.fillText("Click Me !", canvas.width/2, canvas.height/2);
+		ctx.restore();
+	}
+
+	function draw() {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		tick = (tick + speed) % (loop * 100);
+
+		// info
+		ctx.fillStyle = "gray";
+		ctx.fillText(
+			"  " + leg[0].phase +
+			"  " + leg[1].phase +
+			"  " + leg[2].phase +
+			"  " + leg[3].phase +
+			"  speed: " + speed,
+			0, 16);
+		ctx.fillText("[1234] phase [s] speed", 4, canvas.height - 4);
+
+		// legs
+		for (var i=0; i<leg.length; ++i) {
+			var x = leg[seq[i]].x;
+			var y = leg[seq[i]].y;
+			var p = leg[seq[i]].phase / 10;
+			var r = 3;
+			var dx = Math.sin(Math.PI * 2 * (tick / loop + p));
+			var dy = Math.sqrt(r * r - dx * dx);
+//			ctx.beginPath();
+//			ctx.moveTo(x, y);
+//			ctx.lineTo(x + dx * 20, y + dy * 20);
+//			ctx.stroke();
+			var t = Math.atan2(dx, dy);
+			ctx.save();
+			ctx.translate(x, y);
+			ctx.rotate(t);
+			ctx.drawImage(imgF, -imgF.width/2, 0);
+			ctx.restore();
+		}
+		ctx.drawImage(imgH, 40, 25);
+	}
+}();
+</script>
+<p class="t">Steering Behaviors</p>
+<p>根據角色的位置及速率，進而採取行動，讓角色有著智慧。</p>
+<p><a href="http://www.red3d.com/cwr/steer/">http://www.red3d.com/cwr/steer/</a></p>
+<p class="t">HTML5 Canvas Animation Test</p>
+<canvas id="particle" width="200" height="200"></canvas>
+<script>
+var particle = function() {
+	var N = 40;
+	var tx = 0, ty = 360, t = 0;
+	var dx = 2, dy = 3;
+	var px = new Array(N), py = new Array(N);
+	for (var i=0; i<N; ++i) {px[i] = py[i] = -100;}
+
+	var canvas = document.getElementById("particle");
+	var ctx = canvas.getContext("2d");
+
+	canvas.onclick = canvas.onmouseover = canvas.onmouseout = function(){
+		dx = Math.ceil(Math.random()*6);
+		dy = Math.ceil(Math.random()*6);
+	};
+
+	requestAnimationFrame(draw, canvas);
+
+	function draw() {
+		requestAnimationFrame(draw, canvas);
+		var w = canvas.width >> 1, h = canvas.height >> 1;
+		var r = 5, amp = 90;
+		var x = Math.sin(tx * Math.PI / 180);
+		var y = Math.cos(ty * Math.PI / 180);
+		x *= -1; x *= amp; x += (amp + r);
+		y *= -1; y *= amp; y += (amp + r);
+		px[t] = x; py[t] = y;
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.fillStyle = "brown"; 
+		for (var i=0; i<N; ++i)
+			ctx.fillRect(px[i], py[i], 2, 2);
+		ctx.beginPath();
+		ctx.arc(x, y, r, 0, 2.0 * Math.PI);
+		ctx.fillStyle = "red"; ctx.strokeStyle = "black"; ctx.fill(); ctx.stroke();
+		tx = (tx + dx) % 720;
+		ty = (ty + dy) % 720;
+		t = (t + 1) % N;
+	}
+}();
+</script>
+
+</div></div><div class="a"><div class="h">
+<p class="b">Motion Control（Under Construction!）</p>
+</div><div class="c">
+<p class="t">Motion Analysis</p>
+<p>分析。觀測實物，擷取動作。</p>
+<div class="z"><!--<iframe src="http://www.youtube.com/embed/wtWliY1yQXY"></iframe>--></div>
+<div class="z"><!--<iframe src="http://www.youtube.com/embed/8RGb8oJ_Nz0"></iframe>--></div>
+<div class="z"><!--<iframe src="http://www.youtube.com/embed/_IWA0tLyl3Q"></iframe>--></div>
+<p class="t">Motion Retargeting</p>
+<p>重新定位。建立模型與實物的對應關係。</p>
+<div class="z"><!--<iframe src="http://www.youtube.com/embed/MfJ4pA8ngDo"></iframe>--></div>
+<div class="z"><!--<iframe src="http://www.youtube.com/embed/ddp996DIZOk"></iframe>--></div>
+<div class="z"><!--<iframe src="http://www.youtube.com/embed/CvievLytmrs"></iframe>--></div>
+<div class="z"><!--<iframe src="http://www.youtube.com/embed/Bz4WSLUy0Wo"></iframe>--></div>
+<p class="t">Motion Transmission</p>
+<p>傳動。組裝實物，使之連動。</p>
+<div class="z"><!--<iframe src="http://www.youtube.com/embed/DfznnKUwywQ"></iframe>--></div>
+<div class="z"><!--<iframe src="http://www.youtube.com/embed/mV8pFlIG2_o"></iframe>--></div>
+<p class="t">Motion Control</p>
+<p>控制。組裝實物，實施動作。</p>
+<div class="z"><!--<iframe src="http://www.youtube.com/embed/QdQL11uWWcI"></iframe>--></div>
+<div class="z"><!--<iframe src="http://www.youtube.com/embed/xcZJqiUrbnI"></iframe>--></div>
+<p class="t">Motion Planning</p>
+<p>規劃。訂立規矩，尋找動作。</p>
+<div class="z"><!--<iframe src="http://www.youtube.com/embed/6aqlosnp8nE"></iframe>--></div>
+<div class="z"><!--<iframe src="http://www.youtube.com/embed/IanxRZMIC-E"></iframe>--></div>
+<div class="z"><!--<iframe src="http://www.youtube.com/embed/mhr_jtQrhVA"></iframe>--></div>
+<pre>
+http://homes.cs.washington.edu/~todorov/
+http://www.zhihu.com/question/26944678
+http://www.vccoo.com/v/90589d
+</pre>
+<pre>
+Graph Optimization
+http://censi.mit.edu/pub/research/2013-mole2d-slides.pdf
+</pre>
+<script src="jquery-2.1.3.min.js"></script><script src="jquery.lazyload-any.min.js"></script><script>$('.z').lazyload();</script>
+</div></div><script src="h.js"></script></body></html>
